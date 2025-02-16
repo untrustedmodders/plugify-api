@@ -1,16 +1,18 @@
 import { openDB } from 'idb';
 
-const DB_NAME = 'jsonCacheDB';
-const STORE_NAME = 'jsonFiles';
+const DB_NAME = 'docCacheDB';
+const STORE_NAME = 'docFiles';
 
 /**
  * Initialize IndexedDB and return the database instance.
+ * @param name The db name.
+ * @param store The store name.
  */
-async function getDB() {
-    return openDB(DB_NAME, 1, {
+export async function getDB(name: string, store: string) {
+    return openDB(name, 1, {
         upgrade(db) {
-            if (!db.objectStoreNames.contains(STORE_NAME)) {
-                db.createObjectStore(STORE_NAME);
+            if (!db.objectStoreNames.contains(store)) {
+                db.createObjectStore(store);
             }
         },
     });
@@ -22,7 +24,7 @@ async function getDB() {
  * @param data The JSON data to store.
  */
 export async function saveToCache<T>(key: string, data: T): Promise<void> {
-    const db = await getDB();
+    const db = await getDB(DB_NAME, STORE_NAME);
     await db.put(STORE_NAME, data, key);
 }
 
@@ -32,6 +34,6 @@ export async function saveToCache<T>(key: string, data: T): Promise<void> {
  * @returns The cached data or null if not found.
  */
 export async function getFromCache<T>(key: string): Promise<T | null> {
-    const db = await getDB();
+    const db = await getDB(DB_NAME, STORE_NAME);
     return (await db.get(STORE_NAME, key)) as T | null;
 }

@@ -4,7 +4,7 @@ import {
   CardContent,
   CardDescription, CardHeader, CardTitle,
 
-} from '@/components/ui/card';
+} from '~/components/ui/card';
 import type { MethodType } from '~/lib/manifest';
 const props = defineProps<{
   method: MethodType;

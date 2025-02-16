@@ -1,4 +1,5 @@
 import { createDefu } from 'defu';
+import type { DefaultConfig } from "~/types";
 
 const customDefu = createDefu((obj, key, value) => {
   if (Array.isArray(value) && value.every((x: any) => typeof x === 'string')) {

@@ -13,7 +13,8 @@ export default defineNuxtConfig({
 	'@nuxt/content',
     '@nuxt/image',
     '@nuxt/icon',
-    'shadcn-nuxt'
+    'shadcn-nuxt',
+	'@pinia/nuxt'
     ],
   shadcn: {
     prefix: '',

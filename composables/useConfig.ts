@@ -143,18 +143,10 @@ const defaultConfig: DefaultConfig = {
 
 export function useConfig() {
   const appConfig = computed(() => useAppConfig()?.shadcnDocs || {});
-  const route = useRoute();
 
   return computed(
     () => {
       const processedConfig = customDefu(appConfig.value, defaultConfig);
-      const header = processedConfig.header;
-      const main = processedConfig.main;
-      const aside = processedConfig.aside;
-      const banner = processedConfig.banner;
-      const footer = processedConfig.footer;
-      const toc = processedConfig.toc;
-
       return {
         ...appConfig.value,
         ...processedConfig,

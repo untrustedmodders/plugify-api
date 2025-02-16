@@ -78,7 +78,7 @@ export const useDocStore = defineStore('docStore', {
         selectedDoc: {} as Document,
 
         selectedGroup: '',
-        selectedMethod: '',
+        selectedItem: '',
 
         querySearch: '',
         searchMode: false,
@@ -199,8 +199,10 @@ export const useDocStore = defineStore('docStore', {
             this.selectedDoc = this.docs[this.selectedDocUrl];
             localStorage.setItem('selectedDocUrl', url);
 
+            this.searchMode = false;
+            this.querySearch = '';
             this.selectedGroup = '';
-            this.selectedMethod = '';
+            this.selectedItem = '';
             this.foundMethod = {};
             this.foundDelegate = {};
             this.foundEnum = {};
@@ -285,40 +287,29 @@ export const useDocStore = defineStore('docStore', {
             switch (this.fragments.length) {
                 case 1:
                     this.selectedGroup = this.fragments[0];
-                    this.selectedMethod = '';
+                    this.selectedItem = '';
                     break;
                 case 2:
+                    if (this.fragments[0] === 'search' && this.fragments[1].length > 0) {
+                        this.searchMode = true;
+                        this.selectedGroup = '';
+                        this.selectedItem = '';
+                        return;
+                    }
+                    this.searchMode = false;
+                    this.querySearch = '';
                     this.selectedGroup = this.fragments[0];
-                    this.selectedMethod = this.fragments[1];
+                    this.selectedItem = this.fragments[1];
                     break;
                 default:
                     return;
-            }
-
-            if (this.fragments.length > 0 && this.fragments[0] === 'search') {
-                this.searchMode = true;
-                this.selectedGroup = '';
-                this.selectedMethod = '';
-                return;
-            } else {
-                this.searchMode = false;
-                this.querySearch = '';
             }
 
             this.updateSelection();
         },
 
         updateSelection() {
-            if (this.selectedDoc) {
-                let group = this.selectedDoc[this.selectedGroup];
-                if (group !== undefined) {
-                    this.foundMethod = group.methods[this.selectedMethod];
-                    this.foundDelegate = group.delegates[this.selectedMethod];
-                    this.foundEnum = group.enumerators[this.selectedMethod];
-                    this.foundMode = this.foundMethod !== undefined || this.foundDelegate !== undefined || this.foundEnum !== undefined;
-                    return;
-                }
-            }
+
 
             this.foundMethod = {};
             this.foundDelegate = {};

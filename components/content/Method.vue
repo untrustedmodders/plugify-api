@@ -28,7 +28,7 @@ const props = defineProps<{
           <span v-if="method.paramTypes && method.paramTypes.length > 0">
                         <span v-for="(param, index) in method.paramTypes" :key="index">
                           <span class="text-primary">{{ param.type }}</span>
-                          <span >&nbsp{{ param.name }}</span>
+                          <span>&nbsp{{ param.name }}</span>
                           <span v-if="method.paramTypes.length - 1 !== index">,&nbsp</span>
                         </span>
                       </span>

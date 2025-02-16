@@ -12,9 +12,6 @@ import { Separator } from '~/components/ui/separator'
 import {
   Sidebar,
   SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarHeader,
   SidebarInput,
   SidebarInset,
@@ -31,6 +28,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '~/components/ui/tabs'
+
 import Spinner from '~/components/layout/Spinner.vue';
 import SearchButton from '~/components/layout/SearchButton.vue';
 import HashBreadcrumb from '~/components/layout/HashBreadcrumb.vue';
@@ -65,7 +63,7 @@ const countedGroups = computed(() => {
     {
       name: "Enumerators",
       count: Object.values(group.enumerators).length
-    },
+    }
   ];
   return data;
 });
@@ -78,11 +76,16 @@ watch(() => route.hash, (newHash, oldHash) => {
 });
 
 function handleInput(event: any) {
-  router.push(`#/search/${event.target.value}`);
+  const input: string = event.target.value;
+  if (input.length > 0) {
+    router.push(`#/search/${input}`);
+  } else {
+    router.push(`#/`);
+  }
 }
 
-function selectRow(link?: string) {
-  router.push(`#/${store.selectedGroup}/${link}`);
+function selectRow(name?: string) {
+  router.push(`#/${store.selectedGroup}/${name}`);
 }
 </script>
 
@@ -157,22 +160,22 @@ function selectRow(link?: string) {
         <template v-if="isRefreshing">
          <Spinner />
         </template>
-        <template v-if="store.searchMode">
+        <template v-else-if="store.searchMode">
         </template>
         <template v-else-if="store.foundMode">
-          <MethodContent :method="store.foundMethod" />
+          <Method :method="store.foundMethod" />
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
           <Tabs default-value="Methods">
             <TabsPanel :tabs="countedGroups"/>
             <TabsContent value="Methods">
-              <ReferenceTable title="Methods" :elements="Object.values(filteredGroups.methods)" :onclick="selectRow" />
+              <TabCard title="Methods" :elements="Object.values(filteredGroups.methods)" :onclick="selectRow" />
             </TabsContent>
             <TabsContent value="Delegates">
-              <ReferenceTable title="Delegates" :elements="Object.values(filteredGroups.delegates)" :onclick="selectRow" />
+              <TabCard title="Delegates" :elements="Object.values(filteredGroups.delegates)" :onclick="selectRow" />
             </TabsContent>
             <TabsContent value="Enumerators">
-              <ReferenceTable title="Enumerators" :elements="Object.values(filteredGroups.enumerators)" :onclick="selectRow" />
+              <TabCard title="Enumerators" :elements="Object.values(filteredGroups.enumerators)" :onclick="selectRow" />
             </TabsContent>
           </Tabs>
         </template>

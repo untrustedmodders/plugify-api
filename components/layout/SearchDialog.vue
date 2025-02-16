@@ -6,7 +6,7 @@ import { useRouter } from "#app";
 import { useDocStore } from "~/lib/docStore";
 import type { Item } from "~/lib/docStore";
 import { ref } from "vue";
-import InputError from "~/components/ui/InputError.vue";
+import InputError from "~/components/content/InputError.vue";
 
 const { darkModeToggle } = useConfig().value.header;
 
@@ -48,12 +48,6 @@ watch(
 function getHighlightedContent(text: string) {
   return text.replace(input.value, `<span class="font-semibold underline">${input.value}</span>`);
 }
-
-/*const { navKeyFromPath } = useContentHelpers();
-const { navigation } = useContent();
-function getItemIcon(path: string) {
-  return navKeyFromPath(path, 'icon', navigation.value);
-}*/
 
 const router = useRouter();
 const store = useDocStore();

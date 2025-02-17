@@ -2,7 +2,7 @@
 import { Search } from 'lucide-vue-next'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app';
-import { useDocStore } from '~/lib/docStore'
+import { useDocStore, formatName } from '~/lib/docStore'
 
 // Import components from the custom library
 import {
@@ -87,7 +87,7 @@ function selectRow(name?: string) {
         <SidebarMenu>
           <SidebarMenuItem>
             <Logo/>
-            <Separator/>
+            <Separator :label="formatName(store.selectedDocUrl)" />
 <!--            <SearchButton/>-->
           </SidebarMenuItem>
         </SidebarMenu>

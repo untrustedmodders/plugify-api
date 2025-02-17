@@ -55,7 +55,7 @@ type Content = {
 
 type Document = Record<string, Content>;
 
-export function getUrl(url: string) {
+function formatUrl(url: string) {
     if (url.includes('://github.com')) {
         return url
             .replace('://github.com', '://raw.githubusercontent.com')
@@ -64,7 +64,7 @@ export function getUrl(url: string) {
     return url;
 }
 
-export function getName(url: string) {
+export function formatName(url: string) {
     const parts = url.split('/');
     const filename = parts.pop() || ''; // Ensure it's a string
     return filename.split('.')[0]; // Remove file extension
@@ -212,7 +212,7 @@ export const useDocStore = defineStore('docStore', {
 
         addDocUrl(url: string) {
             try {
-                const u = new URL(getUrl(url));
+                const u = new URL(formatUrl(url));
                 if ((u.protocol === "http:" || u.protocol === "https:") && !this.docUrls.includes(u.href)) {
                     this.docUrls.push(u.href);
                     localStorage.setItem('docUrls', JSON.stringify(this.docUrls));

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/hover-card'
 import { useMagicKeys } from '@vueuse/core';
 import { useRouter } from "#app";
-import { useDocStore, getName } from '~/lib/docStore';
+import { useDocStore, formatName } from '~/lib/docStore';
 import type { Item } from '~/lib/docStore';
 import { ref } from "vue";
 import InputError from '~/components/content/InputError.vue';
@@ -157,7 +157,7 @@ function closeDialog() {
 
               <HoverCard>
                 <HoverCardTrigger as-child>
-                  <span>{{ getName(item) }}</span>
+                  <span>{{ formatName(item) }}</span>
                 </HoverCardTrigger>
                 <HoverCardContent class="w-80">
                   <div class="flex justify-between space-x-4">
@@ -194,7 +194,7 @@ function closeDialog() {
               <Icon v-else-if="store.docs[item.url]" name="lucide:circle-check" class="mr-2 size-4" />
               <Icon v-else name="lucide:circle-help" class="mr-2 size-4" />
 
-              <span>{{ getName(item.url) }}</span>
+              <span>{{ formatName(item.url) }}</span>
               <template v-if="item.name.length > 0">
                 <div class="mr-2 size-4 shrink-0" />
                 <Icon :name="`lucide:${item.icon}`" class="mr-2 size-4 shrink-0 self-center" />

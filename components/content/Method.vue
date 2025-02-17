@@ -8,6 +8,7 @@ import type { MethodType } from '~/lib/manifest';
 import CopyButton from "~/components/content/CopyButton.vue";
 const props = defineProps<{
   method: MethodType;
+  group: string;
   url: string;
 }>()
 const root = ref(window.location.origin);
@@ -18,7 +19,7 @@ const root = ref(window.location.origin);
     <CardHeader>
       <CardTitle>
         {{ method.name }}
-        <CopyButton :code="`${root}?file=${url}#/${method.group}/${method.name}`"/>
+        <CopyButton :code="`${root}?file=${url}#/${group}/${method.name}`"/>
       </CardTitle>
       <CardDescription>
         {{ method.description }}

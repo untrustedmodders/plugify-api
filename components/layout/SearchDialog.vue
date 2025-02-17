@@ -14,10 +14,10 @@ import {
 } from '@/components/ui/hover-card'
 import { useMagicKeys } from '@vueuse/core';
 import { useRouter } from "#app";
-import { useDocStore, getName } from "~/lib/docStore";
-import type { Item } from "~/lib/docStore";
+import { useDocStore, getName } from '~/lib/docStore';
+import type { Item } from '~/lib/docStore';
 import { ref } from "vue";
-import InputError from "~/components/content/InputError.vue";
+import InputError from '~/components/content/InputError.vue';
 
 const { darkModeToggle } = useConfig().value.header;
 

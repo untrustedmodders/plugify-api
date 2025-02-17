@@ -78,6 +78,7 @@
 
 <script setup lang="ts">
 import { themes } from '@/lib/registry/themes';
+import type { Color } from "~/types";
 
 const { themeClass, theme, radius, setTheme, setRadius } = useThemes();
 const { darkModeToggle } = useConfig().value.header;

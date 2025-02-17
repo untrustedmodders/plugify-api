@@ -87,6 +87,7 @@ function selectRow(name?: string) {
         <SidebarMenu>
           <SidebarMenuItem>
             <Logo/>
+            <Separator/>
 <!--            <SearchButton/>-->
           </SidebarMenuItem>
         </SidebarMenu>
@@ -144,13 +145,13 @@ function selectRow(name?: string) {
           <Spinner />
         </template>
         <template v-else-if="store.foundMethod">
-          <Method class="w-full max-w-full overflow-hidden" :method="store.foundMethod" :url="store.selectedDocUrl" />
+          <Method class="w-full max-w-full overflow-hidden" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.foundDelegate">
-          <Method class="w-full max-w-full overflow-hidden" :method="store.foundDelegate" :url="store.selectedDocUrl" />
+          <Method class="w-full max-w-full overflow-hidden" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.foundEnum">
-          <Enum class="w-full max-w-full overflow-hidden" :method="store.foundEnum" :url="store.selectedDocUrl" />
+          <Enum class="w-full max-w-full overflow-hidden" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
           <Tabs default-value="Methods">

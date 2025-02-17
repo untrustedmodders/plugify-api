@@ -29,7 +29,7 @@ const props = defineProps<{
     </CardHeader>
     <CardContent v-if="elements.length > 0">
       <Table>
-        <TableCaption>A list of your {{ title.toLowerCase() }}.</TableCaption>
+        <TableCaption>A list of {{ title.toLowerCase() }}.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead class="w-[30%]">Name</TableHead>

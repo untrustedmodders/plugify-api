@@ -70,7 +70,7 @@ const root = ref(window.location.origin);
           </span>
           <strong>&nbsp{{ param.name }}</strong>
           <CardContent>
-            {{ param.description +  param.description +  param.description +  param.description +  param.description +  param.description +  param.description +  param.description }}
+            {{ param.description }}
           </CardContent>
         </li>
       </ul>

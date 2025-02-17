@@ -7,8 +7,8 @@ import { useDocStore } from '~/lib/docStore'
 // Import components from the custom library
 import {
   Badge
-} from '~/components/ui/badge';
-import { Separator } from '~/components/ui/separator'
+} from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator'
 import {
   Sidebar,
   SidebarContent,
@@ -21,13 +21,13 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
-} from '~/components/ui/sidebar'
+} from '@/components/ui/sidebar'
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from '~/components/ui/tabs'
+} from '@/components/ui/tabs'
 
 import Spinner from '~/components/layout/Spinner.vue';
 import SearchButton from '~/components/layout/SearchButton.vue';
@@ -75,15 +75,6 @@ watch(() => route.hash, (newHash, oldHash) => {
   store.onRouteChange(newHash);
 });
 
-function handleInput(event: any) {
-  const input: string = event.target.value;
-  if (input.length > 0) {
-    router.push(`#/search/${input}`);
-  } else {
-    router.push(`#/`);
-  }
-}
-
 function selectRow(name?: string) {
   router.push(`#/${store.selectedGroup}/${name}`);
 }
@@ -96,7 +87,7 @@ function selectRow(name?: string) {
         <SidebarMenu>
           <SidebarMenuItem>
             <Logo/>
-            <SearchButton/>
+<!--            <SearchButton/>-->
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
@@ -128,11 +119,11 @@ function selectRow(name?: string) {
       <header class="flex h-16 shrink-0 items-center gap-2 border-b px-4">
         <SidebarTrigger class="-ml-1" />
         <Separator orientation="vertical" class="mr-2 h-4" />
-        <HashBreadcrumb :fragments="store.fragments"/>
-        <div class="flex flex-1 justify-end gap-2">
-          <!--<LayoutSearchButton v-if="!config.search.inAside && config.search.style === 'input'" />-->
+        <HashBreadcrumb :fragments="store.fragments" class="flex max-md:hidden"/>
+        <div class="flex flex-1 justify-end gap-3">
+          <SearchButton v-if="!config.search.inAside && config.search.style === 'input'" />
           <div class="flex">
-            <!--<LayoutSearchButton v-if="!config.search.inAside && config.search.style === 'button'" />-->
+            <SearchButton v-if="!config.search.inAside && config.search.style === 'button'" />
             <ThemePopover v-if="config.theme.customizable" />
             <DarkModeToggle v-if="config.header.darkModeToggle" />
             <NuxtLink
@@ -148,39 +139,50 @@ function selectRow(name?: string) {
           </div>
         </div>
       </header>
-      <div class="flex flex-1 flex-col gap-4 p-4">
-        <div class="grid gap-6">
-          <form class="relative" @submit.prevent>
-            <Input placeholder="Search Query" class="pl-10" @input="handleInput" v-model="store.querySearch" />
-            <span class="absolute start-0 inset-y-0 flex items-center justify-center px-2">
-              <Search class="size-6 text-muted-foreground" />
-            </span>
-          </form>
-        </div>
+      <div class="flex flex-1 flex-col p-4">
         <template v-if="isRefreshing">
-         <Spinner />
+          <Spinner />
         </template>
-        <template v-else-if="store.searchMode">
+        <template v-else-if="store.foundMethod">
+          <Method class="w-full max-w-full overflow-hidden" :method="store.foundMethod" :url="store.selectedDocUrl" />
         </template>
-        <template v-else-if="store.foundMode">
-          <Method :method="store.foundMethod" />
+        <template v-else-if="store.foundDelegate">
+          <Method class="w-full max-w-full overflow-hidden" :method="store.foundDelegate" :url="store.selectedDocUrl" />
+        </template>
+        <template v-else-if="store.foundEnum">
+          <Enum class="w-full max-w-full overflow-hidden" :method="store.foundEnum" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
           <Tabs default-value="Methods">
-            <TabsPanel :tabs="countedGroups"/>
+            <TabsPanel :tabs="countedGroups" />
             <TabsContent value="Methods">
-              <TabCard title="Methods" :elements="Object.values(filteredGroups.methods)" :onclick="selectRow" />
+              <TabCard
+                  title="Methods"
+                  :elements="Object.values(filteredGroups.methods)"
+                  :onclick="selectRow"
+                  class="w-full max-w-full overflow-hidden"
+              />
             </TabsContent>
             <TabsContent value="Delegates">
-              <TabCard title="Delegates" :elements="Object.values(filteredGroups.delegates)" :onclick="selectRow" />
+              <TabCard
+                  title="Delegates"
+                  :elements="Object.values(filteredGroups.delegates)"
+                  :onclick="selectRow"
+                  class="w-full max-w-full overflow-hidden"
+              />
             </TabsContent>
             <TabsContent value="Enumerators">
-              <TabCard title="Enumerators" :elements="Object.values(filteredGroups.enumerators)" :onclick="selectRow" />
+              <TabCard
+                  title="Enumerators"
+                  :elements="Object.values(filteredGroups.enumerators)"
+                  :onclick="selectRow"
+                  class="w-full max-w-full overflow-hidden"
+              />
             </TabsContent>
           </Tabs>
         </template>
         <template v-else>
-          <Intro/>
+          <Intro />
         </template>
       </div>
       <Footer/>

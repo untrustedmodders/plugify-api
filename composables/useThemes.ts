@@ -2,7 +2,7 @@ import type { Theme } from '@/lib/registry/themes';
 import { themes } from '@/lib/registry/themes';
 
 interface Config {
-  theme?: Theme['name'];
+  theme?: string;
   radius: number;
 }
 
@@ -12,7 +12,7 @@ export function useThemes() {
 
   const defaultTheme = useConfig().value.theme;
   const config = useCookie<Config>('theme', {
-    default: () => ({
+    default: (): Config => ({
       theme: defaultTheme.color,
       radius: defaultTheme.radius,
     }),
@@ -23,7 +23,7 @@ export function useThemes() {
 
   const themeClass = computed(() => `theme-${theme.value}`);
 
-  function setTheme(themeName: Theme['name']) {
+  function setTheme(themeName: string) {
     config.value.theme = themeName;
   }
 

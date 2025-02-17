@@ -1,8 +1,8 @@
 <script setup lang="ts">
 //import { File, ListFilter } from "lucide-vue-next";
-import { TabsList, TabsTrigger } from "~/components/ui/tabs";
+//import { TabsList, TabsTrigger } from "@/components/ui/tabs";
 //import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "~/components/ui/dropdown-menu";
-import { Badge } from "~/components/ui/badge";
+//import { Badge } from "@/components/ui/badge";
 const props = defineProps<{ tabs: { name: string, count: number }[] }>();
 </script>
 

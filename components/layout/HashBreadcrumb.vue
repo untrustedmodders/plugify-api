@@ -7,7 +7,7 @@ import {
   BreadcrumbSeparator,
   BreadcrumbPage,
   Breadcrumb
-} from "~/components/ui/breadcrumb"; // Adjust path as needed
+} from '@/components/ui/breadcrumb'; // Adjust path as needed
 
 const props = defineProps<{ fragments: string[] }>();
 

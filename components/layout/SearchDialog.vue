@@ -1,9 +1,20 @@
 <script setup lang="ts">
 import { VisuallyHidden } from 'radix-vue';
-import { Command, CommandGroup, CommandInput, CommandItem, CommandList } from '~/components/ui/command'
+import {
+  Command,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList
+} from '@/components/ui/command'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
 import { useMagicKeys } from '@vueuse/core';
 import { useRouter } from "#app";
-import { useDocStore } from "~/lib/docStore";
+import { useDocStore, getName } from "~/lib/docStore";
 import type { Item } from "~/lib/docStore";
 import { ref } from "vue";
 import InputError from "~/components/content/InputError.vue";
@@ -99,12 +110,6 @@ function closeDialog() {
   subopen.value = false;
 }
 
-function getName(url: string) {
-  const parts = url.split('/');
-  const filename = parts.pop() || ''; // Ensure it's a string
-  return filename.split('.')[0]; // Remove file extension
-}
-
 </script>
 
 <template>
@@ -150,7 +155,19 @@ function getName(url: string) {
               <Icon v-else-if="store.docs[item]" name="lucide:circle-check" class="mr-2 size-4" />
               <Icon v-else name="lucide:circle-help" class="mr-2 size-4" />
 
-              <span>{{ getName(item) }}</span>
+              <HoverCard>
+                <HoverCardTrigger as-child>
+                  <span>{{ getName(item) }}</span>
+                </HoverCardTrigger>
+                <HoverCardContent class="w-80">
+                  <div class="flex justify-between space-x-4">
+                    <p class="text-sm">
+                      {{ item }}
+                    </p>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+
               <Button
                   aria-haspopup="true"
                   size="icon"
@@ -197,47 +214,54 @@ function getName(url: string) {
             No results found.
           </div>
         </CommandList>
+        <div v-if="!input?.length">
+          <CommandSeparator />
+          <CommandList  @escape-key-down="open = false">
+            <CommandGroup>
+              <Sheet>
+                <SheetTrigger as-child>
+                  <CommandItem
+                      value="add-url"
+                      @click="open = true"
+                  >
+                    <Icon name="lucide:plus" class="mr-2 h-5 w-5" />
+                    Add Manifest
+                  </CommandItem>
+                </SheetTrigger>
+                <SheetContent side="bottom">
+                  <SheetHeader>
+                    <SheetTitle>Add new manifest</SheetTitle>
+                    <SheetDescription>
+                      Make changes to your profile here. Click add when you're done.
+                    </SheetDescription>
+                  </SheetHeader>
+                  <div class="grid gap-4 py-4">
+                    <div class="grid items-center grid-cols-4 gap-4">
+                      <Label for="url" class="text-right">
+                        URL
+                      </Label>
+                      <InputError
+                          id="url"
+                          v-model="inputUrl"
+                          class="col-span-3"
+                          :error="errorMessage"
+                          placeholder="Enter the URL for the document"
+                      />
+                    </div>
+                  </div>
+                  <SheetFooter>
+                    <SheetClose as-child>
+                      <Button @click="addUrl">
+                        Add
+                      </Button>
+                    </SheetClose>
+                  </SheetFooter>
+                </SheetContent>
+              </Sheet>
+            </CommandGroup>
+          </CommandList>
+        </div>
       </Command>
-      <DialogFooter class="m-4">
-        <Dialog v-model:open="subopen">
-          <DialogTrigger as-child>
-            <Button>
-              Add manifest
-            </Button>
-          </DialogTrigger>
-          <DialogContent class="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New URL</DialogTitle>
-              <DialogDescription>
-                Add a new document URL along with its name here. Click save when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            <div class="grid gap-4 py-4">
-              <!-- URL field -->
-              <div class="grid grid-cols-4 items-center gap-4">
-                <Label for="url" class="text-right">
-                  URL
-                </Label>
-                <InputError
-                    id="url"
-                    v-model="inputUrl"
-                    class="col-span-3"
-                    :error="errorMessage"
-                    placeholder="Enter the URL for the document"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button @click="addUrl">
-                Add
-              </Button>
-              <Button @click="closeDialog" variant="outline">
-                Cancel
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      </DialogFooter>
     </DialogContent>
   </Dialog>
 </template>

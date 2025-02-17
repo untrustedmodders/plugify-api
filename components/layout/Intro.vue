@@ -1,5 +1,10 @@
 <script setup lang="ts">
-import { Card, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
+import {
+  Card,
+  CardDescription,
+  CardHeader,
+  CardTitle
+} from "@/components/ui/card";
 import Spinner from "~/components/layout/Spinner.vue";
 import { onMounted, ref } from "vue";
 

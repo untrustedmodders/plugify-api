@@ -55,13 +55,19 @@ type Content = {
 
 type Document = Record<string, Content>;
 
-function getUrl(url: string) {
+export function getUrl(url: string) {
     if (url.includes('://github.com')) {
         return url
             .replace('://github.com', '://raw.githubusercontent.com')
             .replace('/blob/', '/refs/heads/');
     }
     return url;
+}
+
+export function getName(url: string) {
+    const parts = url.split('/');
+    const filename = parts.pop() || ''; // Ensure it's a string
+    return filename.split('.')[0]; // Remove file extension
 }
 
 export const useDocStore = defineStore('docStore', {
@@ -80,14 +86,10 @@ export const useDocStore = defineStore('docStore', {
         selectedGroup: '',
         selectedItem: '',
 
-        querySearch: '',
-        searchMode: false,
-
         fragments: [] as string[],
-        foundMode: false,
-        foundMethod: {} as MethodType,
-        foundDelegate: {} as MethodType,
-        foundEnum: {} as EnumType
+        foundMethod: null as MethodType | null,
+        foundDelegate: null as MethodType | null,
+        foundEnum: null as EnumType | null
     }),
     actions: {
         async initDB(selectedDocUrl: any) {
@@ -199,14 +201,11 @@ export const useDocStore = defineStore('docStore', {
             this.selectedDoc = this.docs[this.selectedDocUrl];
             localStorage.setItem('selectedDocUrl', url);
 
-            this.searchMode = false;
-            this.querySearch = '';
             this.selectedGroup = '';
             this.selectedItem = '';
-            this.foundMethod = {};
-            this.foundDelegate = {};
-            this.foundEnum = {};
-            this.foundMode = false;
+            this.foundMethod = null;
+            this.foundDelegate = null;
+            this.foundEnum = null;
 
             this.loadDoc(url);
         },
@@ -290,14 +289,6 @@ export const useDocStore = defineStore('docStore', {
                     this.selectedItem = '';
                     break;
                 case 2:
-                    if (this.fragments[0] === 'search' && this.fragments[1].length > 0) {
-                        this.searchMode = true;
-                        this.selectedGroup = '';
-                        this.selectedItem = '';
-                        return;
-                    }
-                    this.searchMode = false;
-                    this.querySearch = '';
                     this.selectedGroup = this.fragments[0];
                     this.selectedItem = this.fragments[1];
                     break;
@@ -309,12 +300,18 @@ export const useDocStore = defineStore('docStore', {
         },
 
         updateSelection() {
-
-
-            this.foundMethod = {};
-            this.foundDelegate = {};
-            this.foundEnum = {};
-            this.foundMode = false;
+            if (this.selectedDoc) {
+                let group = this.selectedDoc[this.selectedGroup];
+                if (group !== undefined) {
+                    this.foundMethod = group.methods[this.selectedItem];
+                    this.foundDelegate = group.delegates[this.selectedItem];
+                    this.foundEnum = group.enumerators[this.selectedItem];
+                    return;
+                }
+            }
+            this.foundMethod = null;
+            this.foundDelegate = null;
+            this.foundEnum = null;
         },
 
         onDataUpdated(url: string, data: Document) {

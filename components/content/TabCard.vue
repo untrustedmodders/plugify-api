@@ -7,8 +7,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/components/ui/table'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+} from '@/components/ui/table'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { BaseType } from '~/lib/manifest';
 const props = defineProps<{
   title: string;

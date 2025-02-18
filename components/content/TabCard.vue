@@ -18,13 +18,13 @@ const props = defineProps<{
 </script>
 
 <template>
-  <Card>
-    <CardHeader class="px-7">
+  <Card class="rounded-none md:rounded-md">
+    <CardHeader class="p-5 md:p-5">
       <CardTitle>
         {{ title }}
       </CardTitle>
     </CardHeader>
-    <CardContent>
+    <CardContent class="p-2 md:p-5">
       <Table>
         <TableHeader>
           <TableRow>
@@ -37,8 +37,8 @@ const props = defineProps<{
               @click.stop="onclick(element.name)"
               class="cursor-pointer"
           >
-            <TableCell class="text-primary align-top">{{ element.name }}</TableCell>
-            <TableCell class="align-top">{{ element.description }}</TableCell>
+            <TableCell class="text-primary align-top pr-2">{{ element.name }}</TableCell>
+            <TableCell class="align-top break-words pl-2">{{ element.description }}</TableCell>
           </TableRow>
         </TableBody>
       </Table>

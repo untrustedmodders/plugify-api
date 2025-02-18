@@ -222,8 +222,8 @@ function closeDialog() {
           <CommandSeparator />
           <CommandList  @escape-key-down="open = false">
             <CommandGroup>
-              <Sheet>
-                <SheetTrigger as-child>
+              <Dialog>
+                <DialogTrigger as-child>
                   <CommandItem
                       value="add-url"
                       @click="open = true"
@@ -231,37 +231,37 @@ function closeDialog() {
                     <Plus class="mr-2 h-5 w-5" />
                     Add Manifest
                   </CommandItem>
-                </SheetTrigger>
-                <SheetContent side="bottom">
-                  <SheetHeader>
-                    <SheetTitle>Add new manifest</SheetTitle>
-                    <SheetDescription>
+                </DialogTrigger>
+                <DialogContent class="h-full max-w-[100%] md:max-w-[510px] md:max-h-[230px] flex flex-col space-y-2">
+                  <DialogHeader>
+                    <DialogTitle>Add new manifest</DialogTitle>
+                    <DialogDescription>
                       Make changes to your profile here. Click add when you're done.
-                    </SheetDescription>
-                  </SheetHeader>
+                    </DialogDescription>
+                  </DialogHeader>
                   <div class="grid gap-4 py-4">
-                    <div class="grid items-center grid-cols-4 gap-4">
-                      <Label for="url" class="text-right">
+                    <div class="grid items-center grid-cols-[auto,1fr] gap-4">
+                      <Label for="url" class="w-auto">
                         URL
                       </Label>
                       <InputError
                           id="url"
                           v-model="inputUrl"
-                          class="col-span-3"
                           :error="errorMessage"
                           placeholder="Enter the URL for the document"
+                          class="w-full"
                       />
                     </div>
                   </div>
-                  <SheetFooter>
-                    <SheetClose as-child>
-                      <Button @click="addUrl">
+                  <DialogFooter>
+                    <DialogClose as-child>
+                      <Button @click="addUrl" class="w-full">
                         Add
                       </Button>
-                    </SheetClose>
-                  </SheetFooter>
-                </SheetContent>
-              </Sheet>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </CommandGroup>
           </CommandList>
         </div>

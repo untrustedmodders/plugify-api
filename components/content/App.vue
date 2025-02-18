@@ -170,7 +170,7 @@ function selectGroup(name?: string) {
           </div>
         </div>
       </header>
-      <div class="flex flex-1 flex-col p-4">
+      <div class="flex flex-1 flex-col md:p-4">
         <template v-if="isRefreshing">
           <Spinner />
         </template>

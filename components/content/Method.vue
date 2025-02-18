@@ -53,7 +53,7 @@ const root = ref(window.location.origin);
       </code>
       <div class="pt-[3.5rem]">
         <ul v-if="method.paramTypes && method.paramTypes.length > 0">
-          <h4 class="text-lg font-semibold leading-none tracking-tight">Parameters</h4>
+          <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Parameters</h4>
           <li v-for="(param, index) in method.paramTypes" :key="index">
             <span v-if="param.prototype">
               <a :href="`#/${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
@@ -75,7 +75,7 @@ const root = ref(window.location.origin);
           </li>
         </ul>
         <ul v-if="method.retType && method.retType.type !== 'void'">
-          <h4 class="text-lg font-semibold leading-none tracking-tight">Return</h4>
+          <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Return</h4>
           <li>
             <strong class="mb-4 text-primary">{{ method.retType.type }}</strong> <strong>{{ method.retType.name }}</strong>
             <CardContent>
@@ -84,7 +84,7 @@ const root = ref(window.location.origin);
           </li>
         </ul>
         <ul v-if="method.error">
-          <h3 class="text-lg font-semibold leading-none tracking-tight">Error</h3>
+          <h3 class="text-lg font-semibold leading-none tracking-tight pb-3">Error</h3>
           <li>
             <CardContent>
               {{ method.error }}

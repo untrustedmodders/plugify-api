@@ -44,7 +44,7 @@ export type Item = {
     url: string;
     name: string;
     link: string;
-    icon: string;
+    icon: number;
 }
 
 type Content = {
@@ -244,28 +244,27 @@ export const useDocStore = defineStore('docStore', {
                     let found: Item[] = [];
                     for (const url of this.docUrls) {
                         if (url.includes(value)) {
-                            found.push({ url: url, name: '', link: '#/', icon: '' });
+                            found.push({ url: url, name: '', link: '#/', icon: 0 });
                         }
-
                         const data = this.docs[url];
                         if (data) {
                             for (const [group, content] of Object.entries(data)) {
                                 if (group.includes(value)) {
-                                    found.push({ url: url, name: group, link: `#/${group}`, icon: 'file-text' });
+                                    found.push({ url: url, name: group, link: `#/${group}`, icon: 1 });
                                 }
                                 for (const name of Object.keys(content.methods)) {
                                     if (name.includes(value)) {
-                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 'square-m' });
+                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 2 });
                                     }
                                 }
                                 for (const name of Object.keys(content.delegates)) {
                                     if (name.includes(value)) {
-                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 'square-function' });
+                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 3 });
                                     }
                                 }
                                 for (const name of Object.keys(content.enumerators)) {
                                     if (name.includes(value)) {
-                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 'square-sigma' });
+                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 4 });
                                     }
                                 }
                             }

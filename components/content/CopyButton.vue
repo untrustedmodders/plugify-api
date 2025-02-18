@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Check, Link } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import {
   Tooltip,
@@ -28,8 +29,8 @@ const { copy, copied } = useClipboard({ source: code })
           @click="copy()"
       >
         <span class="sr-only">Copy</span>
-        <Icon name="lucide:check" v-if="copied" />
-        <Icon name="lucide:link" v-else />
+        <Check v-if="copied" />
+        <Link v-else />
       </Button>
     </TooltipTrigger>
     <TooltipContent>Copy url</TooltipContent>

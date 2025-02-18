@@ -33,12 +33,12 @@ const root = ref(window.location.origin);
         <span v-if="method.paramTypes && method.paramTypes.length > 0">
             <span v-for="(param, index) in method.paramTypes" :key="index">
               <span v-if="param.prototype">
-                <a :href="`${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
+                <a :href="`#/${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
                   {{ param.prototype?.name }}
                 </a>
               </span>
               <span v-else-if="param.enum">
-                <a :href="`${method.group}/${param.enum?.name}`" class="text-primary hover:underline" >
+                <a :href="`#/${method.group}/${param.enum?.name}`" class="text-primary hover:underline" >
                   {{ param.enum?.name }}
                 </a>
               </span>
@@ -56,12 +56,12 @@ const root = ref(window.location.origin);
           <h4 class="text-lg font-semibold leading-none tracking-tight">Parameters</h4>
           <li v-for="(param, index) in method.paramTypes" :key="index">
             <span v-if="param.prototype">
-              <a :href="`${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
+              <a :href="`#/${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
                 {{ param.prototype?.name }}
               </a>
             </span>
             <span v-else-if="param.enum">
-              <a :href="`${method.group}/${param.enum?.name}`" class="text-primary hover:underline" >
+              <a :href="`#/${method.group}/${param.enum?.name}`" class="text-primary hover:underline" >
                 {{ param.enum?.name }}
               </a>
             </span>

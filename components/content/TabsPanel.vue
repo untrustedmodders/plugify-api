@@ -9,14 +9,16 @@ const props = defineProps<{ tabs: { name: string, count: number }[] }>();
 <template>
   <div class="flex items-center">
     <TabsList>
-      <TabsTrigger v-for="(tab, index) in tabs" :key="index" :value="tab.name">
-        <div class="flex justify-between">
-          {{ tab.name }}
-          <Badge class="ml-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full !text-[0.625rem]">
-            {{ tab.count }}
-          </Badge>
-        </div>
-      </TabsTrigger>
+      <template v-for="(tab, index) in tabs" :key="index">
+        <TabsTrigger v-if="tab.count > 0" :value="tab.name">
+          <div class="flex justify-between">
+            {{ tab.name }}
+            <Badge class="ml-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full !text-[0.625rem]">
+              {{ tab.count }}
+            </Badge>
+          </div>
+        </TabsTrigger>
+      </template>
     </TabsList>
 <!--    <div class="ml-auto flex items-center gap-2">
       <DropdownMenu>

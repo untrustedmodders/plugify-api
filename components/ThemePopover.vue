@@ -2,7 +2,7 @@
   <Popover>
     <PopoverTrigger as-child>
       <Button variant="ghost" size="icon">
-        <Icon name="lucide:paintbrush" size="16" />
+        <Paintbrush :size="16" />
       </Button>
     </PopoverTrigger>
     <PopoverContent
@@ -15,6 +15,7 @@
 </template>
 
 <script setup lang="ts">
+import { Paintbrush } from 'lucide-vue-next'
 import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 
 const breakpoints = useBreakpoints(breakpointsTailwind);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Search } from 'lucide-vue-next'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-next'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, formatName } from '~/lib/docStore'
@@ -100,10 +100,10 @@ function selectGroup(name?: string) {
         <SidebarGroup>
           <SidebarGroupLabel>
             <span v-if="store.selectedDocUrl.length > 0" class="flex items-center justify-center">
-              <Icon v-if="store.isRefreshing[store.selectedDocUrl]" name="lucide:refresh-ccw" class="mr-2 size-4 animate-spin" />
-              <Icon v-else-if="store.isInvalid[store.selectedDocUrl]" name="lucide:circle-alert" class="mr-2 size-4" />
-              <Icon v-else-if="store.docs[store.selectedDocUrl]" name="lucide:circle-check" class="mr-2 size-4" />
-              <Icon v-else name="lucide:circle-help" class="mr-2 size-4" />
+              <RefreshCcw v-if="store.isRefreshing[store.selectedDocUrl]" class="mr-2 size-4 animate-spin" />
+              <CircleAlert v-else-if="store.isInvalid[store.selectedDocUrl]" class="mr-2 size-4" />
+              <CircleCheck v-else-if="store.docs[store.selectedDocUrl]" class="mr-2 size-4" />
+              <CircleHelp v-else class="mr-2 size-4" />
               <HoverCard>
                 <HoverCardTrigger as-child>
                   <span>{{ formatName(store.selectedDocUrl) }}</span>

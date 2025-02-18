@@ -23,13 +23,9 @@ const props = defineProps<{
       <CardTitle>
         {{ title }}
       </CardTitle>
-      <CardDescription>
-       Some description.
-      </CardDescription>
     </CardHeader>
-    <CardContent v-if="elements.length > 0">
+    <CardContent>
       <Table>
-        <TableCaption>A list of {{ title.toLowerCase() }}.</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead class="w-[30%]">Name</TableHead>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, FileText, SquareM, SquareFunction, SquareSigma } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue';
 import {
   Command,
@@ -150,10 +151,10 @@ function closeDialog() {
                 :key="i" :value="i"
                 @click="handleSelect(item)"
                 class="flex rounded-md p-2">
-              <Icon v-if="store.isRefreshing[item]" name="lucide:refresh-ccw" class="mr-2 size-4 animate-spin" />
-              <Icon v-else-if="store.isInvalid[item]" name="lucide:circle-alert" class="mr-2 size-4" />
-              <Icon v-else-if="store.docs[item]" name="lucide:circle-check" class="mr-2 size-4" />
-              <Icon v-else name="lucide:circle-help" class="mr-2 size-4" />
+              <RefreshCcw v-if="store.isRefreshing[item]" class="mr-2 size-4 animate-spin" />
+              <CircleAlert v-else-if="store.isInvalid[item]" class="mr-2 size-4" />
+              <CircleCheck v-else-if="store.docs[item]" class="mr-2 size-4" />
+              <CircleHelp v-else class="mr-2 size-4" />
 
               <HoverCard>
                 <HoverCardTrigger as-child>
@@ -175,7 +176,7 @@ function closeDialog() {
                   class="ml-auto text-muted-foreground hover:text-primary rounded-full size-3 content-center mr-2"
                   @click.stop="handleRemove(item)"
               >
-                <Icon name="lucide:x" class="h-4 w-4" />
+                <X class="h-4 w-4" />
               </Button>
             </CommandItem>
           </div>
@@ -189,18 +190,21 @@ function closeDialog() {
                 :class="[i === activeSelect && 'bg-muted']"
                 @click="activeSelect = i; handleClick(item.link)"
             >
-              <Icon v-if="store.isRefreshing[item.url]" name="lucide:refresh-ccw" class="mr-2 size-4 animate-spin" />
-              <Icon v-else-if="store.isInvalid[item.url]" name="lucide:circle-alert" class="mr-2 size-4" />
-              <Icon v-else-if="store.docs[item.url]" name="lucide:circle-check" class="mr-2 size-4" />
-              <Icon v-else name="lucide:circle-help" class="mr-2 size-4" />
+              <RefreshCcw v-if="store.isRefreshing[item.url]" class="mr-2 size-4 animate-spin" />
+              <CircleAlert v-else-if="store.isInvalid[item.url]" class="mr-2 size-4" />
+              <CircleCheck v-else-if="store.docs[item.url]" class="mr-2 size-4" />
+              <CircleHelp v-else class="mr-2 size-4" />
 
               <span>{{ formatName(item.url) }}</span>
               <template v-if="item.name.length > 0">
                 <div class="mr-2 size-4 shrink-0" />
-                <Icon :name="`lucide:${item.icon}`" class="mr-2 size-4 shrink-0 self-center" />
+                <FileText v-if="item.icon == 1" class="mr-2 size-4 shrink-0 self-center" />
+                <SquareM v-else-if="item.icon == 2" class="mr-2 size-4 shrink-0 self-center" />
+                <SquareFunction v-else-if="item.icon == 3" class="mr-2 size-4 shrink-0 self-center" />
+                <SquareSigma v-else-if="item.icon == 4" class="mr-2 size-4 shrink-0 self-center" />
                   <!--<span v-for="(subtitle, j) in item.titles" :key="`${subtitle}${j}`" class="flex shrink-0 self-center">
                     {{ subtitle }}
-                    <Icon name="lucide:chevron-right" class="mx-0.5 self-center text-muted-foreground" />
+                    <ChevronRight class="mx-0.5 self-center text-muted-foreground" />
                   </span>-->
                 <span class="shrink-0 self-center">
                   {{ item.name }}
@@ -224,7 +228,7 @@ function closeDialog() {
                       value="add-url"
                       @click="open = true"
                   >
-                    <Icon name="lucide:plus" class="mr-2 h-5 w-5" />
+                    <Plus class="mr-2 h-5 w-5" />
                     Add Manifest
                   </CommandItem>
                 </SheetTrigger>

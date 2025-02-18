@@ -31,7 +31,6 @@ const root = ref(window.location.origin);
     </CardHeader>
     <CardContent v-if="enumerator.values">
       <Table>
-        <TableCaption>A list of enumerator values..</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead class="w-[30%]">Name</TableHead>

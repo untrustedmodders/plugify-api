@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { Search } from 'lucide-vue-next'
 const isOpen = ref(false);
 const { enable, inAside, style, placeholder } = useConfig().value.search;
 </script>
@@ -25,7 +26,7 @@ const { enable, inAside, style, placeholder } = useConfig().value.search;
       size="icon"
       @click="isOpen = true"
     >
-      <Icon name="lucide:search" size="16" />
+      <Search :size="16" />
     </Button>
   </template>
 

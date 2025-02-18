@@ -19,7 +19,7 @@
               @click="setTheme(color)"
           >
             <span class="flex size-5 items-center justify-center rounded-full" :style="{ backgroundColor: backgroundColor(color) }">
-              <Icon v-if="theme === color" name="lucide:check" size="16" class="text-white" />
+              <Check v-if="theme === color" :size="16" class="text-white" />
             </span>
             <span class="text-xs capitalize">{{ color }}</span>
           </Button>
@@ -50,7 +50,7 @@
             :class="{ 'border-2 border-primary': colorMode.preference === 'light' }"
             @click="colorMode.preference = 'light'"
         >
-          <Icon name="lucide:sun" size="16" />
+          <Sun :size="16" />
           <span class="text-xs capitalize">Light</span>
         </Button>
         <Button
@@ -59,7 +59,7 @@
             :class="{ 'border-2 border-primary': colorMode.preference === 'dark' }"
             @click="colorMode.preference = 'dark'"
         >
-          <Icon name="lucide:moon" size="16" />
+          <Moon :size="16" />
           <span class="text-xs capitalize">Dark</span>
         </Button>
         <Button
@@ -68,7 +68,7 @@
             :class="{ 'border-2 border-primary': colorMode.preference === 'system' }"
             @click="colorMode.preference = 'system'"
         >
-          <Icon name="lucide:monitor" size="16" />
+          <Monitor :size="16" />
           <span class="text-xs capitalize">System</span>
         </Button>
       </div>
@@ -77,6 +77,7 @@
 </template>
 
 <script setup lang="ts">
+import { Sun, Moon, Check, Monitor } from 'lucide-vue-next'
 import { themes } from '@/lib/registry/themes';
 import type { Color } from "~/types";
 

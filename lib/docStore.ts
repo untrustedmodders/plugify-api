@@ -8,7 +8,7 @@ import type {
     ManifestType,
     MethodType,
     ParamType
-} from './manifest';
+} from '~/lib/manifest';
 
 function ProcessItem(
     param: ParamType,

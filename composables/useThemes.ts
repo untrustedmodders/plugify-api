@@ -18,6 +18,8 @@ export function useThemes() {
     }),
   });
 
+  console.log('def color:', defaultTheme.color, 'def radius:', defaultTheme.radius);
+
   const theme = computed(() => config.value.theme);
   const radius = computed(() => config.value.radius);
 

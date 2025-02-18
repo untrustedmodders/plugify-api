@@ -51,7 +51,7 @@ export default defineNuxtConfig({
       },
     },
   },
-  router: {
-    base: '/plugify-hubapi'
+  app: {
+    baseURL: '/plugify-hubapi/'
   }
 })

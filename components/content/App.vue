@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useHead } from '@vueuse/head';
 import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-next'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app';
@@ -42,6 +43,10 @@ const config = useConfig();
 const route = useRoute();
 const router = useRouter();
 const store = useDocStore();
+
+useHead({
+  title: () => `Plugify API ${store.selectedGroup ? ` :: ${store.selectedGroup}` : ``} ${store.selectedItem ? ` :: ${store.selectedItem}` : ``}`,
+});
 
 onMounted(() => {
   store.initDB(route.query.file);

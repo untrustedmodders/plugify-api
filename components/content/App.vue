@@ -35,6 +35,8 @@ import HashBreadcrumb from '~/components/layout/HashBreadcrumb.vue';
 import Intro from '~/components/layout/Intro.vue';
 import Footer from '~/components/layout/Footer.vue';
 import Logo from '~/components/layout/Logo.vue';
+import {HoverCard, HoverCardContent, HoverCardTrigger} from "~/components/ui/hover-card";
+import {CardHeader} from "~/components/ui/card";
 
 const config = useConfig();
 const route = useRoute();
@@ -78,41 +80,65 @@ watch(() => route.hash, (newHash, oldHash) => {
 function selectRow(name?: string) {
   router.push(`#/${store.selectedGroup}/${name}`);
 }
+function selectGroup(name?: string) {
+  router.push(`#/${name}`);
+}
 </script>
 
 <template>
   <SidebarProvider>
-    <Sidebar class="bg-card">
-      <SidebarHeader>
+    <Sidebar>
+      <SidebarHeader class="bg-card">
         <SidebarMenu>
           <SidebarMenuItem>
             <Logo/>
-            <Separator :label="formatName(store.selectedDocUrl)" />
-<!--            <SearchButton/>-->
+            <Separator/>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <div class="flex-1">
-          <template v-if="isRefreshing">
-            <Spinner />
-          </template>
-          <nav v-else class="grid items-start px-2 text-sm font-medium lg:px-4">
-            <ul v-for="(data, group) in store.selectedDoc" :key="group">
-              <a
-                  :href="`#/${group}`"
-                  class="flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary"
-                  v-bind:class="{ 'bg-muted' : group === store.selectedGroup }"
-                  v-if="Object.values(data.methods).length > 0"
-              >
-                {{ group }}
-                <Badge class="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                  {{ Object.values(data.methods).length + Object.values(data.enumerators).length + Object.values(data.delegates).length }}
-                </Badge>
-              </a>
-            </ul>
-          </nav>
-        </div>
+      <SidebarContent class="bg-card">
+        <SidebarGroup>
+          <SidebarGroupLabel>
+            <span v-if="store.selectedDocUrl.length > 0" class="flex items-center justify-center">
+              <Icon v-if="store.isRefreshing[store.selectedDocUrl]" name="lucide:refresh-ccw" class="mr-2 size-4 animate-spin" />
+              <Icon v-else-if="store.isInvalid[store.selectedDocUrl]" name="lucide:circle-alert" class="mr-2 size-4" />
+              <Icon v-else-if="store.docs[store.selectedDocUrl]" name="lucide:circle-check" class="mr-2 size-4" />
+              <Icon v-else name="lucide:circle-help" class="mr-2 size-4" />
+              <HoverCard>
+                <HoverCardTrigger as-child>
+                  <span>{{ formatName(store.selectedDocUrl) }}</span>
+                </HoverCardTrigger>
+                <HoverCardContent class="w-80">
+                  <div class="flex justify-between space-x-4">
+                    <p class="text-sm">
+                      {{ store.selectedDocUrl }}
+                    </p>
+                  </div>
+                </HoverCardContent>
+              </HoverCard>
+            </span>
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <template v-if="isRefreshing">
+              <Spinner />
+            </template>
+            <SidebarMenu>
+              <SidebarMenuItem v-for="(data, group) in store.selectedDoc" :key="group">
+                <SidebarMenuButton
+                    class="text-muted-foreground hover:text-primary"
+                    v-bind:class="{ 'text-primary bg-muted' : group === store.selectedGroup }"
+                    v-if="Object.values(data.methods).length > 0"
+                    @click="selectGroup(group)"
+                >
+                  {{ group }}
+                  <Badge class="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
+                    {{ Object.values(data.methods).length + Object.values(data.enumerators).length + Object.values(data.delegates).length }}
+                  </Badge>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
       <SidebarRail />
     </Sidebar>

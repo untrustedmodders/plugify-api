@@ -3,6 +3,9 @@ export default defineAppConfig({
     site: {
       name: 'plugify',
       description: 'A Modern C++ Plugin and Package Manager with Multi-Language Support. Customizable. Compatible. Open Source.',
+      ogImage: '/hero.png',
+      ogImageComponent: 'ShadcnDocs',
+      ogImageColor: 'light',
     },
     theme: {
       customizable: true,
@@ -18,13 +21,12 @@ export default defineAppConfig({
         dark: '/plg-logo-text-white.svg',
       },
       links: [{
-        icon: 'simple-icons:github',
-        to: 'https://github.com/untrustedmodders/',
-        target: '_blank',
-      },
-      {
         icon: 'simple-icons:discord',
         to: 'https://discord.gg/untrustedmodders',
+        target: '_blank',
+      }, {
+        icon: 'simple-icons:github',
+        to: 'https://github.com/untrustedmodders/',
         target: '_blank',
       }],
     },
@@ -37,8 +39,12 @@ export default defineAppConfig({
       showTitle: true,
     },
     footer: {
-      credits: `© untrustedmodders 2023-${new Date().getFullYear()}`,
+      credits: `Copyright © 2023-${new Date().getFullYear()} Plugify - MIT License`,
       links: [{
+        icon: 'simple-icons:discord',
+        to: 'https://discord.gg/untrustedmodders',
+        target: '_blank',
+      }, {
         icon: 'simple-icons:github',
         to: 'https://github.com/untrustedmodders',
         target: '_blank',

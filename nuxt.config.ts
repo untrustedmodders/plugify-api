@@ -8,13 +8,14 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   modules: [
-    '@nuxtjs/tailwindcss', 
+    '@nuxtjs/tailwindcss',
     '@nuxtjs/color-mode',
-	'@nuxt/content',
+    '@nuxt/content',
     '@nuxt/image',
     '@nuxt/icon',
     'shadcn-nuxt',
-	'@pinia/nuxt'
+    '@pinia/nuxt',
+    'nuxt-og-image',
     ],
   shadcn: {
     prefix: '',

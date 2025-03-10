@@ -7,8 +7,11 @@ const config = useConfig();
 const { themeClass, radius } = useThemes();
 
 useSeoMeta({
-  description: config.value.site.description,
-  ogDescription: config.value.site.description,
+  title: `${config.value.site.name} - Plugin Documentation`,
+  ogTitle: 'Explore Plugins & Documentation',
+  description: 'Browse and explore plugin manifests with detailed documentation.',
+  ogDescription: 'Find plugin details, versions, and usage instructions.',
+  ogImage: config.value.site.ogImage,
   twitterCard: 'summary_large_image',
 });
 

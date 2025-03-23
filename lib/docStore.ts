@@ -10,6 +10,10 @@ import type {
     ParamType
 } from '~/lib/manifest';
 
+// Add new constants for cache expiration (in milliseconds) and database version
+const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
+const DB_VERSION = 2; // Increment the version when schema changes
+
 function ProcessItem(
     param: ParamType,
     delgs: MethodMap,
@@ -93,9 +97,15 @@ export const useDocStore = defineStore('docStore', {
     }),
     actions: {
         async initDB(selectedDocUrl: any) {
-            this.db = await openDB('docCacheDB', 1, {
-                upgrade(db) {
-                    if (!db.objectStoreNames.contains('docFiles')) {
+            this.db = await openDB('docCacheDB', DB_VERSION, {
+                upgrade(db, oldVersion, newVersion, transaction) {
+                    if (oldVersion < 1) {
+                        console.log("First time database creation");
+                    }
+
+                    if (oldVersion < DB_VERSION) {
+                        console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
+                        db.deleteObjectStore('docFiles');
                         db.createObjectStore('docFiles');
                     }
                 },
@@ -116,10 +126,12 @@ export const useDocStore = defineStore('docStore', {
                 return;
 
             const cached = await this.getCachedDoc(url);
-            if (cached) {
-                this.onDataUpdated(url, cached);
-                console.debug('Successfully load from cache');
-                return; // TODO: finish refresh
+            const isOutdated = cached && this.isCacheOutdated(cached.timestamp);
+
+            if (cached && !isOutdated) {
+                this.onDataUpdated(url, cached.data);
+                console.debug('Successfully loaded from cache');
+                return;
             }
 
             // Start refresh in the background, if not already refreshing
@@ -176,9 +188,10 @@ export const useDocStore = defineStore('docStore', {
 
         async setCacheDoc(url: string, data: Document) {
             try {
+                const timestamp = Date.now();
                 const tx = this.db.transaction('docFiles', 'readwrite');
                 const store = tx.objectStore('docFiles');
-                await store.put(data, url);
+                await store.put({ data, timestamp }, url);
                 await tx.done;
             } catch (error) {
                 console.error('Error caching document:', error);
@@ -194,6 +207,11 @@ export const useDocStore = defineStore('docStore', {
                 console.error('Error retrieving cached document:', error);
                 return null;
             }
+        },
+
+        isCacheOutdated(timestamp: number): boolean {
+            const currentTime = Date.now();
+            return currentTime - timestamp > CACHE_EXPIRATION_TIME;
         },
 
         selectDoc(url: string) {

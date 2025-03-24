@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus} from 'lucide-vue-next'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus } from 'lucide-vue-next'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, formatName } from '~/lib/docStore'

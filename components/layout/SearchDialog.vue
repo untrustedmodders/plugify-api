@@ -23,8 +23,6 @@ import InputError from '~/components/content/InputError.vue';
 const { darkModeToggle } = useConfig().value.header;
 
 const open = defineModel<boolean>('open');
-const subopen = defineModel<boolean>('subopen');
-const colorMode = useColorMode();
 const { placeholderDetailed } = useConfig().value.search;
 
 const activeSelect = ref(0);
@@ -94,23 +92,6 @@ function handleRemove(url: string) {
     router.push(`#/`);
   }
 }
-
-const inputUrl = ref('')
-const errorMessage = ref('');
-
-function addUrl() {
-  if (store.addDocUrl(inputUrl.value.trim())) {
-    closeDialog();
-  } else {
-    errorMessage.value = "Invalid URL.";
-  }
-}
-
-function closeDialog() {
-  inputUrl.value = ''
-  subopen.value = false;
-}
-
 </script>
 
 <template>
@@ -151,10 +132,19 @@ function closeDialog() {
                 :key="i" :value="i"
                 @click="handleSelect(item)"
                 class="flex rounded-md p-2">
-              <RefreshCcw v-if="store.isRefreshing[item]" class="mr-2 size-4 animate-spin" />
-              <CircleAlert v-else-if="store.isInvalid[item]" class="mr-2 size-4" />
-              <CircleCheck v-else-if="store.docs[item]" class="mr-2 size-4" />
-              <CircleHelp v-else class="mr-2 size-4" />
+
+              <Button
+                  aria-haspopup="true"
+                  size="icon"
+                  variant="ghost"
+                  class="text-muted-foreground hover:text-primary rounded-full size-3 content-center mr-1"
+                  @click.stop="store.refreshDoc(store.selectedDocUrl)"
+              >
+                <RefreshCcw v-if="store.isRefreshing[item]" class="mr-2 size-4 animate-spin" />
+                <CircleAlert v-else-if="store.isInvalid[item]" class="mr-2 size-4" />
+                <CircleCheck v-else-if="store.docs[item]" class="mr-2 size-4" />
+                <CircleHelp v-else class="mr-2 size-4" />
+              </Button>
 
               <HoverCard>
                 <HoverCardTrigger as-child>
@@ -218,53 +208,6 @@ function closeDialog() {
             No results found.
           </div>
         </CommandList>
-        <div v-if="!input?.length">
-          <CommandSeparator />
-          <CommandList  @escape-key-down="open = false">
-            <CommandGroup>
-              <Dialog>
-                <DialogTrigger as-child>
-                  <CommandItem
-                      value="add-url"
-                      @click="open = true"
-                  >
-                    <Plus class="mr-2 h-5 w-5" />
-                    Add Manifest
-                  </CommandItem>
-                </DialogTrigger>
-                <DialogContent class="h-full max-w-[100%] md:max-w-[510px] md:max-h-[230px] flex flex-col space-y-2">
-                  <DialogHeader>
-                    <DialogTitle>Add new manifest</DialogTitle>
-                    <DialogDescription>
-                      Make changes to your profile here. Click add when you're done.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div class="grid gap-4 py-4">
-                    <div class="grid items-center grid-cols-[auto,1fr] gap-4">
-                      <Label for="url" class="w-auto">
-                        URL
-                      </Label>
-                      <InputError
-                          id="url"
-                          v-model="inputUrl"
-                          :error="errorMessage"
-                          placeholder="Enter the URL for the document"
-                          class="w-full"
-                      />
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose as-child>
-                      <Button @click="addUrl" class="w-full">
-                        Add
-                      </Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-            </CommandGroup>
-          </CommandList>
-        </div>
       </Command>
     </DialogContent>
   </Dialog>

@@ -135,6 +135,10 @@ export const useDocStore = defineStore('docStore', {
             }
 
             // Start refresh in the background, if not already refreshing
+            this.refreshDoc(url);
+        },
+
+        refreshDoc(url: string) {
             if (!this.isRefreshing[url]) {
                 this.isRefreshing[url] = true;
                 this.refreshDocInBackground(url);

@@ -8,7 +8,7 @@ const props = defineProps<{ tabs: { name: string, count: number }[] }>();
 
 <template>
   <div class="flex flex-wrap items-center p-0 md:p-0">
-    <TabsList class="flex flex-col md:flex-row w-[100%] md:w-auto  rounded-none md:rounded-md">
+    <TabsList class="flex flex-col md:flex-row w-[100%] md:w-auto rounded-none md:rounded-md">
       <template v-for="(tab, index) in tabs" :key="index">
         <TabsTrigger v-if="tab.count > 0" :value="tab.name" class="w-full md:w-auto">
           <div class="flex justify-between">

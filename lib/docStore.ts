@@ -104,8 +104,10 @@ export const useDocStore = defineStore('docStore', {
                     }
 
                     if (oldVersion < DB_VERSION) {
-                        console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
-                        db.deleteObjectStore('docFiles');
+                        if (db.objectStoreNames.contains('docFiles')) {
+                            console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
+                            db.deleteObjectStore('docFiles');
+                        }
                         db.createObjectStore('docFiles');
                     }
                 },

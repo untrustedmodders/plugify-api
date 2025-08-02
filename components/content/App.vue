@@ -96,8 +96,11 @@ const errorMessage = ref('');
 const open = defineModel<boolean>('open');
 
 function addUrl() {
-  if (store.addDocUrl(inputUrl.value.trim())) {
+  const url = inputUrl.value.trim();
+  if (store.addDocUrl(url)) {
     closeDialog();
+    store.selectDoc(url);
+    router.push(`#/`);
   } else {
     errorMessage.value = "Invalid URL.";
   }

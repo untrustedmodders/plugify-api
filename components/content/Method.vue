@@ -6,6 +6,8 @@ import {
 } from '@/components/ui/card';
 import type { MethodType } from '~/lib/manifest';
 import CopyButton from "~/components/content/CopyButton.vue";
+import Parameter from "~/components/content/Parameter.vue";
+import Signature from "~/components/content/Signature.vue";
 const props = defineProps<{
   method: MethodType;
   group: string;
@@ -28,24 +30,11 @@ const root = ref(window.location.origin);
     <CardContent>
       <code class="bg-secondary p-[5px] whitespace-pre overflow-x-auto max-w-[80%] absolute rounded-md">
         <span>native </span>
-        <span class="text-primary">{{ method.retType?.type }}</span>
-        <span>&nbsp{{ method.name }}(</span>
+        <Signature :group="method.group" :param="method.retType"/>
+        <span>{{ method.name }}(</span>
         <span v-if="method.paramTypes && method.paramTypes.length > 0">
             <span v-for="(param, index) in method.paramTypes" :key="index">
-              <span v-if="param.prototype">
-                <a :href="`#/${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
-                  {{ param.prototype?.name }}
-                </a>
-              </span>
-              <span v-else-if="param.enum">
-                <a :href="`#/${method.group}/${param.enum?.name}`" class="text-primary hover:underline" >
-                  {{ param.enum?.name }}
-                </a>
-              </span>
-              <span v-else class="text-primary">
-                {{ param.type }}
-              </span>
-              <span>&nbsp{{ param.name }}</span>
+              <Signature :group="method.group" :param="param"/>
               <span v-if="method.paramTypes.length - 1 !== index">,&nbsp</span>
             </span>
           </span>
@@ -55,32 +44,13 @@ const root = ref(window.location.origin);
         <ul v-if="method.paramTypes && method.paramTypes.length > 0">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Parameters</h4>
           <li v-for="(param, index) in method.paramTypes" :key="index">
-            <span v-if="param.prototype">
-              <a :href="`#/${method.group}/${param.prototype?.name}`" class="text-primary hover:underline" >
-                {{ param.prototype?.name }}
-              </a>
-            </span>
-            <span v-else-if="param.enum">
-              <a :href="`#/${method.group}/${param.enum?.name}`" class="text-primary hover:underline" >
-                {{ param.enum?.name }}
-              </a>
-            </span>
-            <span v-else class="text-primary">
-              {{ param.type }}
-            </span>
-            <strong>&nbsp{{ param.name }}</strong>
-            <CardContent>
-              {{ param.description }}
-            </CardContent>
+            <Parameter :group="method.group" :param="param"/>
           </li>
         </ul>
         <ul v-if="method.retType && method.retType.type !== 'void'">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Return</h4>
           <li>
-            <strong class="mb-4 text-primary">{{ method.retType.type }}</strong> <strong>{{ method.retType.name }}</strong>
-            <CardContent>
-              {{ method.retType.description }}
-            </CardContent>
+            <Parameter :group="method.group" :param="method.retType"/>
           </li>
         </ul>
         <ul v-if="method.error">

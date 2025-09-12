@@ -154,9 +154,9 @@ export const useDocStore = defineStore('docStore', {
 
                 let data: Document = {};
 
-                if (manifest.exportedMethods !== undefined) {
-                    const methodMap: Record<string, MethodMap> = manifest.exportedMethods.reduce((acc: Record<string, MethodMap>, item: MethodType) => {
-                        const group = item.group || manifest.friendlyName || '';
+                if (manifest.methods !== undefined) {
+                    const methodMap: Record<string, MethodMap> = manifest.methods.reduce((acc: Record<string, MethodMap>, item: MethodType) => {
+                        const group = item.group || manifest.name || '';
                         if (!acc[group]) {
                             acc[group] = {};
                         }

@@ -1,7 +1,7 @@
 export type ManifestType = {
     version?: string;
-    friendlyName?: string;
-    exportedMethods?: MethodType[];
+    name?: string;
+    methods?: MethodType[];
 }
 
 export type BaseType = {

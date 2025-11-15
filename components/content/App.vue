@@ -3,6 +3,7 @@ import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-nex
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, formatName } from '~/lib/docStore'
+import { useWindowSize } from '@vueuse/core'
 
 // Import components from the custom library
 import {
@@ -41,6 +42,9 @@ const config = useConfig();
 const route = useRoute();
 const router = useRouter();
 const store = useDocStore();
+
+const { width } = useWindowSize()
+const isSmall = computed(() => width.value < 640)
 
 useHead({
   title: () => `Plugify API ${store.selectedGroup ? ` :: ${store.selectedGroup}` : ``} ${store.selectedItem ? ` :: ${store.selectedItem}` : ``}`,
@@ -148,6 +152,7 @@ function selectGroup(name?: string) {
                 :key="i"
                 :to="link?.to"
                 :target="link?.target"
+                v-if="!isSmall || i < 2"
             >
               <Button variant="ghost" size="icon" class="flex gap-2">
                 <Icon v-if="link?.icon" :name="link.icon" :size="18" />

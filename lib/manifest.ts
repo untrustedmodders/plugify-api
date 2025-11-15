@@ -2,6 +2,7 @@ export type ManifestType = {
     version?: string;
     name?: string;
     methods?: MethodType[];
+    classes?: ClassType[];
 }
 
 export type BaseType = {
@@ -32,5 +33,26 @@ export type ParamType = BaseType & {
     enum?: EnumType;
 };
 
+export type AliasType = BaseType & {
+    owner?: boolean;
+};
+
+export type BindingType = BaseType & {
+    method?: string;
+    paramAliases?: AliasType[];
+    retAlias?: AliasType;
+};
+
+export type ClassType = BaseType & {
+    group?: string;
+    constructors?: string[];
+    destructor?: string;
+    bindings?: BindingType[]
+    handleType?: string;
+    invalidValue?: string;
+}
+
 export type MethodMap = Record<string, MethodType>;
 export type EnumMap = Record<string, EnumType>;
+export type ClassMap = Record<string, ClassType>;
+

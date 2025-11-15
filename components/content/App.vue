@@ -165,6 +165,9 @@ function selectGroup(name?: string) {
         <template v-else-if="store.foundEnum">
           <Enum class="w-full max-w-full overflow-hidden" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
+        <template v-else-if="store.foundClass">
+          <Class class="w-full max-w-full overflow-hidden" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+        </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
           <Tabs default-value="Methods">
             <TabsPanel :tabs="countedGroups" />
@@ -188,6 +191,14 @@ function selectGroup(name?: string) {
               <TabCard
                   title="Enumerators"
                   :elements="Object.values(filteredGroups.enumerators)"
+                  :onclick="selectRow"
+                  class="w-full max-w-full overflow-hidden"
+              />
+            </TabsContent>
+            <TabsContent value="Classes">
+              <TabCard
+                  title="Classes"
+                  :elements="Object.values(filteredGroups.classes)"
                   :onclick="selectRow"
                   class="w-full max-w-full overflow-hidden"
               />

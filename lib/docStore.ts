@@ -3,11 +3,14 @@ import { openDB } from 'idb';
 import type {
     EnumMap,
     MethodMap,
+    ClassMap,
 
     EnumType,
     ManifestType,
     MethodType,
-    ParamType
+    ParamType,
+
+    ClassType,
 } from '~/lib/manifest';
 
 // Add new constants for cache expiration (in milliseconds) and database version
@@ -55,6 +58,7 @@ type Content = {
     methods: MethodMap;
     delegates: MethodMap;
     enumerators: EnumMap;
+    classes: ClassMap;
 }
 
 type Document = Record<string, Content>;
@@ -93,7 +97,8 @@ export const useDocStore = defineStore('docStore', {
         fragments: [] as string[],
         foundMethod: null as MethodType | null,
         foundDelegate: null as MethodType | null,
-        foundEnum: null as EnumType | null
+        foundEnum: null as EnumType | null,
+        foundClass: null as ClassType | null
     }),
     actions: {
         async initDB(selectedDocUrl: any) {
@@ -173,12 +178,31 @@ export const useDocStore = defineStore('docStore', {
                         data[group] = {
                             methods: methods,
                             delegates: delegates,
-                            enumerators: enumerators
+                            enumerators: enumerators,
+                            classes: {}
                         };
                     }
                     this.isInvalid[url] = false;
                 } else {
                     this.isInvalid[url] = true;
+                }
+
+                if (manifest.classes !== undefined) {
+                    const classMap: Record<string, ClassMap> = manifest.classes.reduce((acc: Record<string, ClassMap>, item: ClassType) => {
+                        const group = item.group || manifest.name || '';
+                        if (!acc[group]) {
+                            acc[group] = {};
+                        }
+                        acc[group][item.name || ''] = item;
+                        return acc;
+                    }, {});
+
+                    for (const [group, classes] of Object.entries(classMap)) {
+                        const entry = data[group];
+                        if (entry) {
+                            entry.classes = classes;
+                        }
+                    }
                 }
 
                 await this.setCacheDoc(url, data);
@@ -230,6 +254,7 @@ export const useDocStore = defineStore('docStore', {
             this.foundMethod = null;
             this.foundDelegate = null;
             this.foundEnum = null;
+            this.foundClass = null;
 
             this.loadDoc(url);
         },
@@ -263,6 +288,7 @@ export const useDocStore = defineStore('docStore', {
                 this.foundMethod = null;
                 this.foundDelegate = null;
                 this.foundEnum = null;
+                this.foundClass = null;
 
                 localStorage.removeItem('selectedDocUrl');
             }
@@ -296,6 +322,11 @@ export const useDocStore = defineStore('docStore', {
                                 for (const name of Object.keys(content.enumerators)) {
                                     if (name.includes(value)) {
                                         found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 4 });
+                                    }
+                                }
+                                for (const name of Object.keys(content.classes)) {
+                                    if (name.includes(value)) {
+                                        found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 5 });
                                     }
                                 }
                             }
@@ -336,12 +367,14 @@ export const useDocStore = defineStore('docStore', {
                     this.foundMethod = group.methods[this.selectedItem];
                     this.foundDelegate = group.delegates[this.selectedItem];
                     this.foundEnum = group.enumerators[this.selectedItem];
+                    this.foundClass = group.classes[this.selectedItem];
                     return;
                 }
             }
             this.foundMethod = null;
             this.foundDelegate = null;
             this.foundEnum = null;
+            this.foundClass = null;
         },
 
         onDataUpdated(url: string, data: Document) {

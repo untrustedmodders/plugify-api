@@ -67,22 +67,22 @@ const groupMethods = computed(() => {
       <!-- Constructors -->
       <div v-if="klass.constructors && klass.constructors.length > 0" class="mb-6">
         <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Constructors</h4>
-        <div class="bg-secondary rounded-md">
+        <div class="bg-secondary rounded-md overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead class="w-[40%]">Method</TableHead>
-                <TableHead class="w-[60%]">Description</TableHead>
+                <TableHead class="min-w-[120px] md:w-[40%]">Method</TableHead>
+                <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow v-for="constructor in klass.constructors" :key="constructor">
-                <TableCell class="align-top">
+                <TableCell class="align-top whitespace-nowrap md:whitespace-normal">
                   <a :href="`#/${group}/${constructor}`" class="text-primary hover:underline font-mono">
                     {{ constructor }}
                   </a>
                 </TableCell>
-                <TableCell class="align-top text-muted-foreground">
+                <TableCell class="align-top text-muted-foreground break-words">
                   {{ groupMethods[constructor].description }}
                 </TableCell>
               </TableRow>
@@ -94,22 +94,22 @@ const groupMethods = computed(() => {
       <!-- Destructor -->
       <div v-if="klass.destructor" class="mb-6">
         <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Destructor</h4>
-        <div class="bg-secondary rounded-md">
+        <div class="bg-secondary rounded-md overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead class="w-[40%]">Method</TableHead>
-                <TableHead class="w-[60%]">Description</TableHead>
+                <TableHead class="min-w-[120px] md:w-[40%]">Method</TableHead>
+                <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
-                <TableCell class="align-top">
+                <TableCell class="align-top whitespace-nowrap md:whitespace-normal">
                   <a :href="`#/${group}/${klass.destructor}`" class="text-primary hover:underline font-mono">
                     {{ klass.destructor }}
                   </a>
                 </TableCell>
-                <TableCell class="align-top text-muted-foreground">
+                <TableCell class="align-top text-muted-foreground break-words">
                   {{ groupMethods[klass.destructor].description }}
                 </TableCell>
               </TableRow>
@@ -121,21 +121,21 @@ const groupMethods = computed(() => {
       <!-- Bindings/Methods -->
       <div v-if="klass.bindings && klass.bindings.length > 0" class="mb-6">
         <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Bindings</h4>
-        <div class="bg-secondary rounded-md">
+        <div class="bg-secondary rounded-md overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead class="w-[30%]">Name</TableHead>
-                <TableHead class="w-[30%]">Method</TableHead>
-                <TableHead class="w-[40%]">Description</TableHead>
+                <TableHead class="min-w-[100px] md:w-[30%]">Name</TableHead>
+                <TableHead class="min-w-[120px] md:w-[30%]">Method</TableHead>
+                <TableHead class="min-w-[200px] md:w-[40%]">Description</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow v-for="binding in klass.bindings" :key="binding.name">
-                <TableCell class="text-muted-foreground hover:text-primary align-top font-semibold">
+                <TableCell class="text-muted-foreground hover:text-primary align-top font-semibold whitespace-nowrap md:whitespace-normal">
                   {{ binding.name }}
                 </TableCell>
-                <TableCell class="align-top">
+                <TableCell class="align-top whitespace-nowrap md:whitespace-normal">
                   <a
                     v-if="binding.method"
                     :href="`#/${group}/${binding.method}`"
@@ -145,7 +145,7 @@ const groupMethods = computed(() => {
                   </a>
                   <span v-else class="text-muted-foreground italic">None</span>
                 </TableCell>
-                <TableCell class="align-top text-muted-foreground">
+                <TableCell class="align-top text-muted-foreground break-words">
                   <div v-if="binding.description">
                     {{ binding.description }}
                   </div>

@@ -25,12 +25,12 @@ const props = defineProps<{
       </CardTitle>
     </CardHeader>
     <CardContent class="p-2 md:p-5">
-      <div class="bg-secondary rounded-md">
+      <div class="bg-secondary rounded-md overflow-x-auto">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="w-[40%]">Name</TableHead>
-              <TableHead class="w-[60%]">Description</TableHead>
+              <TableHead class="min-w-[120px] md:w-[40%]">Name</TableHead>
+              <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody v-for="element in elements" :key="element.name">
@@ -38,7 +38,7 @@ const props = defineProps<{
                 @click.stop="onclick(element.name)"
                 class="cursor-pointer"
             >
-              <TableCell class="text-muted-foreground hover:text-primary align-top">{{ element.name }}</TableCell>
+              <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
               <TableCell class="align-top break-words">{{ element.description }}</TableCell>
             </TableRow>
           </TableBody>

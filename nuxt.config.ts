@@ -53,6 +53,12 @@ export default defineNuxtConfig({
     },
   },
   app: {
-    baseURL: '/'
+    baseURL: '/',
+    head: {
+      viewport: 'width=device-width, initial-scale=1, maximum-scale=5',
+      meta: [
+        { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=5' }
+      ]
+    }
   }
 })

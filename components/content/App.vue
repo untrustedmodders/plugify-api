@@ -131,12 +131,12 @@ function selectGroup(name?: string) {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-    <SidebarInset>
-      <header class="flex h-16 shrink-0 items-center gap-2 border-b px-4">
+    <SidebarInset class="w-full overflow-x-hidden">
+      <header class="flex h-16 shrink-0 items-center gap-2 border-b px-2 md:px-4">
         <SidebarTrigger class="-ml-1" />
         <Separator orientation="vertical" class="mr-2 h-4" />
         <HashBreadcrumb :fragments="store.fragments" class="flex max-md:hidden"/>
-        <div class="flex flex-1 justify-end gap-3">
+        <div class="flex flex-1 justify-end gap-1 md:gap-3">
           <ManifestSwitcher />
           <SearchButton v-if="!config.search.inAside && config.search.style === 'input'" />
           <div class="flex">
@@ -156,21 +156,21 @@ function selectGroup(name?: string) {
           </div>
         </div>
       </header>
-      <div class="flex flex-1 flex-col md:p-4">
+      <div class="flex flex-1 flex-col p-2 md:p-4 overflow-x-hidden w-full">
         <template v-if="isRefreshing">
           <Spinner />
         </template>
         <template v-else-if="store.foundMethod">
-          <Method class="w-full max-w-full overflow-hidden" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+          <Method class="w-full max-w-full" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.foundDelegate">
-          <Method class="w-full max-w-full overflow-hidden" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+          <Method class="w-full max-w-full" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.foundEnum">
-          <Enum class="w-full max-w-full overflow-hidden" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+          <Enum class="w-full max-w-full" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.foundClass">
-          <Class class="w-full max-w-full overflow-hidden" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+          <Class class="w-full max-w-full" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
           <Tabs default-value="Methods" :key="store.selectedGroup">
@@ -180,7 +180,7 @@ function selectGroup(name?: string) {
                   title="Methods"
                   :elements="Object.values(filteredGroups.methods)"
                   :onclick="selectRow"
-                  class="w-full max-w-full overflow-hidden"
+                  class="w-full max-w-full"
               />
             </TabsContent>
             <TabsContent value="Delegates">
@@ -188,7 +188,7 @@ function selectGroup(name?: string) {
                   title="Delegates"
                   :elements="Object.values(filteredGroups.delegates)"
                   :onclick="selectRow"
-                  class="w-full max-w-full overflow-hidden"
+                  class="w-full max-w-full"
               />
             </TabsContent>
             <TabsContent value="Enumerators">
@@ -196,7 +196,7 @@ function selectGroup(name?: string) {
                   title="Enumerators"
                   :elements="Object.values(filteredGroups.enumerators)"
                   :onclick="selectRow"
-                  class="w-full max-w-full overflow-hidden"
+                  class="w-full max-w-full"
               />
             </TabsContent>
             <TabsContent value="Classes">
@@ -204,7 +204,7 @@ function selectGroup(name?: string) {
                   title="Classes"
                   :elements="Object.values(filteredGroups.classes)"
                   :onclick="selectRow"
-                  class="w-full max-w-full overflow-hidden"
+                  class="w-full max-w-full"
               />
             </TabsContent>
           </Tabs>

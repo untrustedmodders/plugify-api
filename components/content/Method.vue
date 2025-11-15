@@ -28,19 +28,21 @@ const root = ref(window.location.origin);
       </CardDescription>
     </CardHeader>
     <CardContent>
-      <code class="bg-secondary p-[5px] whitespace-pre overflow-x-auto max-w-[80%] absolute rounded-md">
-        <span>native </span>
-        <Signature :group="method.group" :param="method.retType"/>
-        <span>{{ method.name }}(</span>
-        <span v-if="method.paramTypes && method.paramTypes.length > 0">
+      <div class="mb-4 overflow-x-auto">
+        <code class="bg-secondary p-2 md:p-[5px] whitespace-pre block w-full rounded-md text-xs md:text-sm">
+          <span>native </span>
+          <Signature :group="method.group" :param="method.retType"/>
+          <span>{{ method.name }}(</span>
+          <span v-if="method.paramTypes && method.paramTypes.length > 0">
             <span v-for="(param, index) in method.paramTypes" :key="index">
               <Signature :group="method.group" :param="param"/>
               <span v-if="method.paramTypes.length - 1 !== index">,&nbsp</span>
             </span>
           </span>
-        <span>)</span>
-      </code>
-      <div class="pt-[3.5rem]">
+          <span>)</span>
+        </code>
+      </div>
+      <div>
         <ul v-if="method.paramTypes && method.paramTypes.length > 0">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Parameters</h4>
           <li v-for="(param, index) in method.paramTypes" :key="index">

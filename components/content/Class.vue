@@ -39,8 +39,8 @@ const groupMethods = computed(() => {
 <template>
   <Card>
     <CardHeader class="px-7">
-      <BackButton :group="group" />
       <CardTitle>
+        <BackButton :group="group" />
         {{ klass.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${klass.name}`"/>
       </CardTitle>

@@ -2,6 +2,7 @@
 import { ArrowLeft } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '#app'
+import {Tooltip, TooltipContent, TooltipTrigger} from "~/components/ui/tooltip";
 
 const props = defineProps<{
   group: string
@@ -9,16 +10,24 @@ const props = defineProps<{
 
 const router = useRouter()
 
-function goBack() {
+function back() {
   router.push(`#/${props.group}`)
 }
 </script>
 
 <template>
-  <div class="flex items-center gap-2 mb-2">
-    <Button variant="ghost" size="icon" @click="goBack" class="h-8 w-8">
-      <ArrowLeft class="h-4 w-4" />
-    </Button>
-    <span class="text-sm text-muted-foreground">Back to {{ group }}</span>
-  </div>
+  <Tooltip :delay-duration="100">
+    <TooltipTrigger as-child>
+      <Button
+          size="icon"
+          variant="ghost"
+          class="h-7 w-7 [&_svg]:size-3.5"
+          @click="back()"
+      >
+        <span class="sr-only">Back</span>
+        <ArrowLeft />
+      </Button>
+    </TooltipTrigger>
+    <TooltipContent>Back to {{ group }}</TooltipContent>
+  </Tooltip>
 </template>

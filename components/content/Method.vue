@@ -21,8 +21,8 @@ const root = ref(window.location.origin);
 <template>
   <Card>
     <CardHeader>
-      <BackButton :group="group" />
       <CardTitle>
+        <BackButton :group="group" />
         {{ method.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${method.name}`"/>
       </CardTitle>

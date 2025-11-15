@@ -23,8 +23,8 @@ const root = ref(window.location.origin);
 <template>
   <Card>
     <CardHeader class="px-7">
-      <BackButton :group="group" />
       <CardTitle>
+        <BackButton :group="group" />
         {{ enumerator.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${enumerator.name}`"/>
       </CardTitle>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus } from 'lucide-vue-next'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-next'
 import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, formatName } from '~/lib/docStore'
@@ -35,10 +35,7 @@ import HashBreadcrumb from '~/components/layout/HashBreadcrumb.vue';
 import Intro from '~/components/layout/Intro.vue';
 import Footer from '~/components/layout/Footer.vue';
 import Logo from '~/components/layout/Logo.vue';
-import {HoverCard, HoverCardContent, HoverCardTrigger} from "~/components/ui/hover-card";
-import {CardHeader} from "~/components/ui/card";
-import {CommandGroup, CommandItem, CommandList} from "~/components/ui/command";
-import InputError from "~/components/content/InputError.vue";
+import ManifestSwitcher from '~/components/layout/ManifestSwitcher.vue';
 
 const config = useConfig();
 const route = useRoute();
@@ -90,26 +87,6 @@ function selectGroup(name?: string) {
   router.push(`#/${name}`);
 }
 
-const inputUrl = ref('')
-const errorMessage = ref('');
-
-const open = defineModel<boolean>('open');
-
-function addUrl() {
-  const url = inputUrl.value.trim();
-  if (store.addDocUrl(url)) {
-    closeDialog();
-    store.selectDoc(url);
-    router.push(`#/`);
-  } else {
-    errorMessage.value = "Invalid URL.";
-  }
-}
-
-function closeDialog() {
-  inputUrl.value = ''
-  open.value = false;
-}
 </script>
 
 <template>
@@ -120,31 +97,8 @@ function closeDialog() {
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>
-            <span v-if="store.selectedDocUrl.length > 0" class="flex items-center justify-center">
-              <Button size="icon"
-                      variant="ghost"
-                      class="text-muted-foreground hover:text-primary rounded-full size-3 content-center mr-1"
-                      @click.stop="store.refreshDoc(store.selectedDocUrl)"
-              >
-                <RefreshCcw v-if="store.isRefreshing[store.selectedDocUrl]" class="animate-spin" />
-                <CircleAlert v-else-if="store.isInvalid[store.selectedDocUrl]"  />
-                <CircleCheck v-else-if="store.docs[store.selectedDocUrl]" />
-                <CircleHelp v-else />
-              </Button>
-              <HoverCard>
-                <HoverCardTrigger as-child>
-                  <span>{{ formatName(store.selectedDocUrl) }}</span>
-                </HoverCardTrigger>
-                <HoverCardContent class="w-80">
-                  <div class="flex justify-between space-x-4">
-                    <p class="text-sm">
-                      {{ store.selectedDocUrl }}
-                    </p>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-            </span>
+          <SidebarGroupLabel v-if="store.selectedDocUrl.length > 0">
+            API Groups
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <template v-if="isRefreshing">
@@ -169,46 +123,7 @@ function closeDialog() {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <Dialog>
-          <DialogTrigger as-child>
-            <Button
-                value="add-url"
-                @click="open = true"
-            >
-              <Plus class="mr-2 h-5 w-5" />
-              Add Manifest
-            </Button>
-          </DialogTrigger>
-          <DialogContent class="h-full max-w-[100%] md:max-w-[510px] md:max-h-[230px] flex flex-col space-y-2">
-            <DialogHeader>
-              <DialogTitle>Add new manifest</DialogTitle>
-              <DialogDescription>
-                Make changes to your profile here. Click add when you're done.
-              </DialogDescription>
-            </DialogHeader>
-            <div class="grid gap-4 py-4">
-              <div class="grid items-center grid-cols-[auto,1fr] gap-4">
-                <Label for="url" class="w-auto">
-                  URL
-                </Label>
-                <InputError
-                    id="url"
-                    v-model="inputUrl"
-                    :error="errorMessage"
-                    placeholder="Enter the URL for the document"
-                    class="w-full"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <DialogClose as-child>
-                <Button @click="addUrl" class="w-full">
-                  Add
-                </Button>
-              </DialogClose>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <!-- Footer content can be added here if needed -->
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
@@ -219,6 +134,7 @@ function closeDialog() {
         <HashBreadcrumb :fragments="store.fragments" class="flex max-md:hidden"/>
         <div class="flex flex-1 justify-end gap-3">
           <SearchButton v-if="!config.search.inAside && config.search.style === 'input'" />
+          <ManifestSwitcher />
           <div class="flex">
             <SearchButton v-if="!config.search.inAside && config.search.style === 'button'" />
             <ThemePopover v-if="config.theme.customizable" />

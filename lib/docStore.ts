@@ -263,7 +263,7 @@ export const useDocStore = defineStore('docStore', {
                 this.foundMethod = null;
                 this.foundDelegate = null;
                 this.foundEnum = null;
-                
+
                 localStorage.removeItem('selectedDocUrl');
             }
             return current;

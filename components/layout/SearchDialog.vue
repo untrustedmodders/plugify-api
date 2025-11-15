@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, FileText, SquareM, SquareFunction, SquareSigma } from 'lucide-vue-next'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, FileText, SquareM, SquareFunction, SquareSigma } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue';
 import {
   Command,
@@ -81,17 +81,6 @@ function handleClick(url: string) {
   router.push(url);
 }
 
-function handleSelect(url: string) {
-  open.value = false;
-  store.selectDoc(url);
-  router.push(`#/`);
-}
-
-function handleRemove(url: string) {
-  if (store.removeDocUrl(url)) {
-    router.push(`#/`);
-  }
-}
 </script>
 
 <template>
@@ -112,63 +101,9 @@ function handleRemove(url: string) {
             @keydown.up="handleNavigate(-1)"
         />
         <CommandList class="text-sm" @escape-key-down="open = false">
-          <div v-if="!input?.length" class="p-1.5">
-<!--            <template v-for="item in navigation" :key="item._path">
-              <CommandGroup v-if="item.children" :heading="item.title" class="p-1.5">
-                <NuxtLink v-for="child in item.children" :key="child.id" :to="child._path">
-                  <CommandItem :value="child._path">
-                    <SmartIcon v-if="child.icon" :name="child.icon" class="mr-2 size-4" />
-                    <div v-else class="mr-2 size-4" />
-                    <span>{{ child.title }}</span>
-                  </CommandItem>
-                </NuxtLink>
-              </CommandGroup>
-              <CommandSeparator v-if="item.children" />
-            </template>
-            -->
-
-            <CommandItem
-                v-for="(item, i) in store.docUrls"
-                :key="i" :value="i"
-                @click="handleSelect(item)"
-                class="flex rounded-md p-2">
-
-              <Button
-                  aria-haspopup="true"
-                  size="icon"
-                  variant="ghost"
-                  class="text-muted-foreground hover:text-primary rounded-full size-3 content-center mr-1"
-                  @click.stop="store.refreshDoc(store.selectedDocUrl)"
-              >
-                <RefreshCcw v-if="store.isRefreshing[item]" class="mr-2 size-4 animate-spin" />
-                <CircleAlert v-else-if="store.isInvalid[item]" class="mr-2 size-4" />
-                <CircleCheck v-else-if="store.docs[item]" class="mr-2 size-4" />
-                <CircleHelp v-else class="mr-2 size-4" />
-              </Button>
-
-              <HoverCard>
-                <HoverCardTrigger as-child>
-                  <span>{{ formatName(item) }}</span>
-                </HoverCardTrigger>
-                <HoverCardContent class="w-80">
-                  <div class="flex justify-between space-x-4">
-                    <p class="text-sm">
-                      {{ item }}
-                    </p>
-                  </div>
-                </HoverCardContent>
-              </HoverCard>
-
-              <Button
-                  aria-haspopup="true"
-                  size="icon"
-                  variant="ghost"
-                  class="ml-auto text-muted-foreground hover:text-primary rounded-full size-3 content-center mr-2"
-                  @click.stop="handleRemove(item)"
-              >
-                <X class="h-4 w-4" />
-              </Button>
-            </CommandItem>
+          <div v-if="!input?.length" class="py-6 text-center text-muted-foreground">
+            <p class="text-sm">Type to search...</p>
+            <p class="text-xs mt-1">Search across methods, delegates, and enumerators</p>
           </div>
 
           <div v-else-if="searchResult?.length" class="p-1.5">

@@ -137,8 +137,8 @@ function selectGroup(name?: string) {
         <Separator orientation="vertical" class="mr-2 h-4" />
         <HashBreadcrumb :fragments="store.fragments" class="flex max-md:hidden"/>
         <div class="flex flex-1 justify-end gap-3">
-          <SearchButton v-if="!config.search.inAside && config.search.style === 'input'" />
           <ManifestSwitcher />
+          <SearchButton v-if="!config.search.inAside && config.search.style === 'input'" />
           <div class="flex">
             <SearchButton v-if="!config.search.inAside && config.search.style === 'button'" />
             <ThemePopover v-if="config.theme.customizable" />
@@ -173,7 +173,7 @@ function selectGroup(name?: string) {
           <Class class="w-full max-w-full overflow-hidden" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
-          <Tabs default-value="Methods">
+          <Tabs default-value="Methods" :key="store.selectedGroup">
             <TabsPanel :tabs="countedGroups" />
             <TabsContent value="Methods">
               <TabCard

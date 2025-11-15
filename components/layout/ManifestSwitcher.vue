@@ -29,8 +29,8 @@ const currentManifestName = computed(() => {
   <DropdownMenu v-model:open="open">
     <DropdownMenuTrigger as-child>
       <Button 
-        variant="outline" 
-        class="gap-2 min-w-0 max-w-48"
+        variant="outline"
+        class="gap-2 min-w-40 max-w-64"
         :class="[!store.selectedDocUrl && 'text-muted-foreground']"
       >
         <!-- Current manifest status -->

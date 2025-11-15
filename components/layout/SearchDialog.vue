@@ -76,9 +76,12 @@ function handleNavigate(delta: -1 | 1) {
     activeSelect.value += delta;
 }
 
-function handleClick(url: string) {
+async function handleClick(item: Item) {
+  if (item.url !== store.selectedDocUrl) {
+    store.selectDoc(item.url);
+  }
   open.value = false;
-  router.push(url);
+  await router.push(item.link);
 }
 
 </script>
@@ -113,7 +116,7 @@ function handleClick(url: string) {
                 :key="i"
                 class="flex select-none rounded-md p-2 hover:cursor-pointer hover:bg-muted"
                 :class="[i === activeSelect && 'bg-muted']"
-                @click="activeSelect = i; handleClick(item.link)"
+                @click="activeSelect = i; handleClick(item)"
             >
               <RefreshCcw v-if="store.isRefreshing[item.url]" class="mr-2 size-4 animate-spin" />
               <CircleAlert v-else-if="store.isInvalid[item.url]" class="mr-2 size-4" />

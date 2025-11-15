@@ -10,6 +10,8 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { EnumType } from '~/lib/manifest';
 import CopyButton from "~/components/content/CopyButton.vue";
+import BackButton from "~/components/content/BackButton.vue";
+
 const props = defineProps<{
   enumerator: EnumType;
   group: string;
@@ -21,6 +23,7 @@ const root = ref(window.location.origin);
 <template>
   <Card>
     <CardHeader class="px-7">
+      <BackButton :group="group" />
       <CardTitle>
         {{ enumerator.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${enumerator.name}`"/>

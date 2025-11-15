@@ -17,6 +17,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { ClassType } from '~/lib/manifest';
 import CopyButton from "~/components/content/CopyButton.vue";
+import BackButton from "~/components/content/BackButton.vue";
 import { useDocStore } from '~/lib/docStore';
 
 const props = defineProps<{
@@ -38,6 +39,7 @@ const groupMethods = computed(() => {
 <template>
   <Card>
     <CardHeader class="px-7">
+      <BackButton :group="group" />
       <CardTitle>
         {{ klass.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${klass.name}`"/>

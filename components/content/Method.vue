@@ -6,8 +6,10 @@ import {
 } from '@/components/ui/card';
 import type { MethodType } from '~/lib/manifest';
 import CopyButton from "~/components/content/CopyButton.vue";
+import BackButton from "~/components/content/BackButton.vue";
 import Parameter from "~/components/content/Parameter.vue";
 import Signature from "~/components/content/Signature.vue";
+
 const props = defineProps<{
   method: MethodType;
   group: string;
@@ -19,6 +21,7 @@ const root = ref(window.location.origin);
 <template>
   <Card>
     <CardHeader>
+      <BackButton :group="group" />
       <CardTitle>
         {{ method.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${method.name}`"/>

@@ -311,7 +311,7 @@ export const useDocStore = defineStore('docStore', {
                 .replace(/^#\//, "")
                 .split("/")
                 .map(segment => segment.trim())
-                .filter(segment => /^[a-zA-Z0-9-_]+$/.test(segment));
+                .filter(segment => /^[a-zA-Z0-9-_${}]+$/.test(segment));
 
             switch (this.fragments.length) {
                 case 1:

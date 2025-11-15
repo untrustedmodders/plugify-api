@@ -15,7 +15,7 @@ import type {
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
-const DB_VERSION = 2; // Increment the version when schema changes
+const DB_VERSION = 3; // Increment the version when schema changes
 
 function ProcessItem(
     param: ParamType,

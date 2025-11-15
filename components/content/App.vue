@@ -68,6 +68,10 @@ const countedGroups = computed(() => {
     {
       name: "Enumerators",
       count: Object.values(group.enumerators).length
+    },
+    {
+      name: "Classes",
+      count: Object.values(group.classes).length
     }
   ];
   return data;
@@ -114,7 +118,7 @@ function selectGroup(name?: string) {
                 >
                   {{ group }}
                   <Badge class="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                    {{ Object.values(data.methods).length + Object.values(data.enumerators).length + Object.values(data.delegates).length }}
+                    {{ Object.values(data.methods).length + Object.values(data.enumerators).length + Object.values(data.delegates).length + Object.values(data.classes).length }}
                   </Badge>
                 </SidebarMenuButton>
               </SidebarMenuItem>

@@ -40,7 +40,7 @@ function getStatusIcon(url: string) {
 </script>
 
 <template>
-  <div class="w-full max-w-md mx-auto">
+  <div class="flex h-full w-full flex-col overflow-hidden max-w-md mx-auto">
     <div class="space-y-4">
       <!-- Header -->
       <div class="flex items-center justify-between">

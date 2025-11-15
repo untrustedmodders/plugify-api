@@ -17,6 +17,14 @@ import type {
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
 const DB_VERSION = 3; // Increment the version when schema changes
 
+// Default manifest URLs for first-time users
+const DEFAULT_MANIFEST_URLS = [
+    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-s2sdk/refs/heads/main/plugify-plugin-s2sdk.pplugin.in',
+    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-polyhook/refs/heads/main/plugify-plugin-polyhook.pplugin.in',
+    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-dyncall/refs/heads/main/plugify-plugin-dyncall.pplugin.in',
+    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-configs/refs/heads/main/plugify-plugin-configs.pplugin.in',
+];
+
 function ProcessItem(
     param: ParamType,
     delgs: MethodMap,
@@ -119,6 +127,13 @@ export const useDocStore = defineStore('docStore', {
             });
 
             this.docUrls = JSON.parse(localStorage.getItem('docUrls') || '[]')
+
+            // If first-time user (no manifests), add default manifests
+            if (this.docUrls.length === 0) {
+                this.docUrls = [...DEFAULT_MANIFEST_URLS];
+                localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
+            }
+
             if (selectedDocUrl) {
                 this.addDocUrl(selectedDocUrl);
             }

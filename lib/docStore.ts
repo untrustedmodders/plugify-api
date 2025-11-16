@@ -72,11 +72,23 @@ type Content = {
 type Document = Record<string, Content>;
 
 function formatUrl(url: string) {
+    // Handle GitHub URLs
     if (url.includes('://github.com')) {
         return url
             .replace('://github.com', '://raw.githubusercontent.com')
-            .replace('/blob/', '/refs/heads/');
+            .replace('/blob/', '/');
     }
+
+    // Handle GitLab URLs
+    if (url.includes('://gitlab.com')) {
+        return url.replace('/-/blob/', '/-/raw/');
+    }
+
+    // Handle self-hosted GitLab instances (common pattern: gitlab.domain.com)
+    if (url.match(/:\/\/gitlab\.[^/]+/) && url.includes('/-/blob/')) {
+        return url.replace('/-/blob/', '/-/raw/');
+    }
+
     return url;
 }
 

@@ -64,7 +64,7 @@ function getStatusIcon(url: string) {
           <Input
             id="manifest-url"
             v-model="newManifestUrl"
-            placeholder="https://example.com/manifest.json"
+            placeholder="GitHub/GitLab URL or direct link to manifest.json"
             @keydown.enter="handleAddManifest"
           />
           <div class="flex gap-2 justify-end">

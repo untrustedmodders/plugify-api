@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-next'
-import { onMounted, ref, watch } from 'vue'
+import { onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, formatName } from '~/lib/docStore'
 import { useWindowSize } from '@vueuse/core'
+
+// Scroll position tracking for hash-based routing
+const scrollPositions = new Map<string, number>()
 
 // Import components from the custom library
 import {
@@ -88,10 +91,43 @@ watch(() => route.hash, (newHash, oldHash) => {
   store.onRouteChange(newHash);
 });
 
+// Watch for navigation back to group view and restore scroll
+watch(() => store.selectedItem, (newItem, oldItem) => {
+  // If navigating from detail view (oldItem exists) to group view (newItem is null)
+  if (oldItem && !newItem && store.selectedGroup) {
+    restoreScrollPosition()
+  }
+});
+
+function saveScrollPosition() {
+  if (store.selectedGroup) {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop
+    scrollPositions.set(store.selectedGroup, scrollTop)
+  }
+}
+
+function restoreScrollPosition() {
+  if (store.selectedGroup) {
+    const savedPosition = scrollPositions.get(store.selectedGroup)
+    if (savedPosition !== undefined) {
+      nextTick(() => {
+        window.scrollTo({
+          top: savedPosition,
+          behavior: 'instant'
+        })
+      })
+    }
+  }
+}
+
 function selectRow(name?: string) {
+  // Save scroll position before navigating to detail view
+  saveScrollPosition()
   router.push(`#/${store.selectedGroup}/${name}`);
 }
 function selectGroup(name?: string) {
+  // Save scroll position before navigating to another group
+  saveScrollPosition()
   router.push(`#/${name}`);
 }
 

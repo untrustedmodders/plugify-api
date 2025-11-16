@@ -28,27 +28,27 @@ const currentManifestName = computed(() => {
 <template>
   <DropdownMenu v-model:open="open">
     <DropdownMenuTrigger as-child>
-      <Button 
+      <Button
         variant="outline"
         class="gap-2 min-w-40 max-w-64"
         :class="[!store.selectedDocUrl && 'text-muted-foreground']"
       >
         <!-- Current manifest status -->
-        <RefreshCcw 
-          v-if="store.selectedDocUrl && getStatusIcon(store.selectedDocUrl) === 'refreshing'" 
-          class="h-4 w-4 animate-spin flex-shrink-0" 
+        <RefreshCcw
+          v-if="store.selectedDocUrl && getStatusIcon(store.selectedDocUrl) === 'refreshing'"
+          class="h-4 w-4 animate-spin flex-shrink-0"
         />
-        <CircleAlert 
-          v-else-if="store.selectedDocUrl && getStatusIcon(store.selectedDocUrl) === 'error'" 
-          class="h-4 w-4 text-destructive flex-shrink-0" 
+        <CircleAlert
+          v-else-if="store.selectedDocUrl && getStatusIcon(store.selectedDocUrl) === 'error'"
+          class="h-4 w-4 text-destructive flex-shrink-0"
         />
-        <CircleCheck 
-          v-else-if="store.selectedDocUrl && getStatusIcon(store.selectedDocUrl) === 'valid'" 
-          class="h-4 w-4 text-green-600 flex-shrink-0" 
+        <CircleCheck
+          v-else-if="store.selectedDocUrl && getStatusIcon(store.selectedDocUrl) === 'valid'"
+          class="h-4 w-4 text-green-600 flex-shrink-0"
         />
-        <FileText 
-          v-else 
-          class="h-4 w-4 flex-shrink-0" 
+        <FileText
+          v-else
+          class="h-4 w-4 flex-shrink-0"
         />
 
         <span class="truncate">{{ currentManifestName }}</span>
@@ -56,10 +56,10 @@ const currentManifestName = computed(() => {
       </Button>
     </DropdownMenuTrigger>
 
-    <DropdownMenuContent align="start" class="w-80">
+    <DropdownMenuContent class="w-80">
       <DropdownMenuLabel>Select Manifest</DropdownMenuLabel>
       <DropdownMenuSeparator />
-      
+
       <!-- Manifest list -->
       <div v-if="store.docUrls.length > 0" class="max-h-64 overflow-y-auto">
         <DropdownMenuItem
@@ -71,21 +71,21 @@ const currentManifestName = computed(() => {
         >
           <!-- Status indicator -->
           <div class="flex-shrink-0">
-            <RefreshCcw 
-              v-if="getStatusIcon(url) === 'refreshing'" 
-              class="h-4 w-4 animate-spin text-muted-foreground" 
+            <RefreshCcw
+              v-if="getStatusIcon(url) === 'refreshing'"
+              class="h-4 w-4 animate-spin text-muted-foreground"
             />
-            <CircleAlert 
-              v-else-if="getStatusIcon(url) === 'error'" 
-              class="h-4 w-4 text-destructive" 
+            <CircleAlert
+              v-else-if="getStatusIcon(url) === 'error'"
+              class="h-4 w-4 text-destructive"
             />
-            <CircleCheck 
-              v-else-if="getStatusIcon(url) === 'valid'" 
-              class="h-4 w-4 text-green-600" 
+            <CircleCheck
+              v-else-if="getStatusIcon(url) === 'valid'"
+              class="h-4 w-4 text-green-600"
             />
-            <CircleHelp 
-              v-else 
-              class="h-4 w-4 text-muted-foreground" 
+            <CircleHelp
+              v-else
+              class="h-4 w-4 text-muted-foreground"
             />
           </div>
 
@@ -107,7 +107,7 @@ const currentManifestName = computed(() => {
       </div>
 
       <!-- Empty state -->
-      <div 
+      <div
         v-else
         class="flex flex-col items-center py-6 text-muted-foreground"
       >

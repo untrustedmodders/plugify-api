@@ -174,7 +174,7 @@ function selectGroup(name?: string) {
     <SidebarInset class="w-full overflow-x-hidden">
       <header class="flex h-16 shrink-0 items-center gap-2 border-b px-2 md:px-4">
         <SidebarTrigger class="-ml-1" />
-        <Separator orientation="vertical" class="mr-2 h-4" />
+        <Separator orientation="vertical" class="mr-2 h-4 max-md:hidden" />
         <HashBreadcrumb :fragments="store.fragments" class="flex max-md:hidden"/>
         <div class="flex flex-1 justify-end gap-1 md:gap-3">
           <ManifestSwitcher />

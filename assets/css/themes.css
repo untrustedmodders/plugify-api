@@ -901,3 +901,8 @@ html.dark {
 
     --ring: 240 4.9% 83.9%;
 }
+
+body.theme-plugify {
+    padding-right: 0 !important;
+    pointer-events: auto !important;
+}

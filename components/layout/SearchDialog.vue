@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, FileText, SquareM, SquareFunction, SquareSigma } from 'lucide-vue-next'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, FileText, SquareM, SquareFunction, SquareSigma, SquareCode } from 'lucide-vue-next'
 import { VisuallyHidden } from 'radix-vue';
 import {
   Command,
@@ -13,7 +13,7 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
-import { useMagicKeys } from '@vueuse/core';
+import { useMagicKeys, useDebounceFn } from '@vueuse/core';
 import { useRouter } from "#app";
 import { useDocStore, formatName } from '~/lib/docStore';
 import type { Item } from '~/lib/docStore';
@@ -42,21 +42,38 @@ watch([Meta_K, Ctrl_K], (v) => {
 const input = ref('');
 const searchResult = ref<Item[]>([]);
 const searchLoading = ref(false);
+
+const performSearch = useDebounceFn(async (searchTerm: string) => {
+  if (!searchTerm) {
+    searchResult.value = [];
+    searchLoading.value = false;
+    return;
+  }
+
+  searchLoading.value = true;
+  searchResult.value = await store.searchContent(searchTerm);
+  searchLoading.value = false;
+}, 300);
+
 watch(
   input,
-  async (v) => {
+  (v) => {
     activeSelect.value = 0;
-    if (!v)
+    if (!v) {
+      searchResult.value = [];
+      searchLoading.value = false;
       return;
-
+    }
     searchLoading.value = true;
-    searchResult.value = await store.searchContent(v);
-    searchLoading.value = false;
+    performSearch(v);
   },
 );
 
 function getHighlightedContent(text: string) {
-  return text.replace(input.value, `<span class="font-semibold underline">${input.value}</span>`);
+  if (!input.value) return text;
+  const escapedInput = input.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const regex = new RegExp(escapedInput, 'gi');
+  return text.replace(regex, (match) => `<span class="font-semibold underline">${match}</span>`);
 }
 
 const router = useRouter();
@@ -113,7 +130,8 @@ async function handleClick(item: Item) {
             <CommandItem
                 v-for="(item, i) in searchResult"
                 :value="item"
-                :key="i"
+                :key="`${item.url}-${item.name}-${i}`"
+                v-memo="[item, i === activeSelect, store.isRefreshing[item.url], store.isInvalid[item.url], store.docs[item.url]]"
                 class="flex select-none rounded-md p-2 hover:cursor-pointer hover:bg-muted"
                 :class="[i === activeSelect && 'bg-muted']"
                 @click="activeSelect = i; handleClick(item)"
@@ -130,6 +148,7 @@ async function handleClick(item: Item) {
                 <SquareM v-else-if="item.icon == 2" class="mr-2 size-4 shrink-0 self-center" />
                 <SquareFunction v-else-if="item.icon == 3" class="mr-2 size-4 shrink-0 self-center" />
                 <SquareSigma v-else-if="item.icon == 4" class="mr-2 size-4 shrink-0 self-center" />
+                <SquareCode v-else-if="item.icon == 5" class="mr-2 size-4 shrink-0 self-center" />
                   <!--<span v-for="(subtitle, j) in item.titles" :key="`${subtitle}${j}`" class="flex shrink-0 self-center">
                     {{ subtitle }}
                     <ChevronRight class="mx-0.5 self-center text-muted-foreground" />

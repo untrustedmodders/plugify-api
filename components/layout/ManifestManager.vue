@@ -16,6 +16,11 @@ function handleAddManifest() {
   }
 }
 
+function handleResetManifest() {
+  isAdding.value = false;
+  newManifestUrl.value = ''
+}
+
 function handleSelectManifest(url: string) {
   store.selectDoc(url)
   navigateTo('#/')
@@ -69,7 +74,7 @@ function getStatusIcon(url: string) {
           />
           <div class="flex gap-2 justify-end">
             <Button 
-              @click="isAdding = false; newManifestUrl = ''"
+              @click="handleResetManifest"
               size="sm"
               variant="ghost"
             >

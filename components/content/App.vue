@@ -8,6 +8,10 @@ import { useWindowSize } from '@vueuse/core'
 // Scroll position tracking for hash-based routing
 const scrollPositions = new Map<string, number>()
 
+// Active tab tracking per group
+const activeTabPerGroup = new Map<string, string>()
+const currentTab = ref('Methods')
+
 // Import components from the custom library
 import {
   Badge
@@ -96,6 +100,21 @@ watch(() => store.selectedItem, (newItem, oldItem) => {
   // If navigating from detail view (oldItem exists) to group view (newItem is null)
   if (oldItem && !newItem && store.selectedGroup) {
     restoreScrollPosition()
+  }
+});
+
+// Watch for group changes and restore the active tab
+watch(() => store.selectedGroup, (newGroup) => {
+  if (newGroup) {
+    const savedTab = activeTabPerGroup.get(newGroup)
+    currentTab.value = savedTab || 'Methods'
+  }
+});
+
+// Save active tab when it changes
+watch(currentTab, (newTab) => {
+  if (store.selectedGroup && newTab) {
+    activeTabPerGroup.set(store.selectedGroup, newTab)
   }
 });
 
@@ -214,7 +233,7 @@ function selectGroup(name?: string) {
           <Class class="w-full max-w-full" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
-          <Tabs default-value="Methods" :key="store.selectedGroup">
+          <Tabs v-model="currentTab" :key="store.selectedGroup">
             <TabsPanel :tabs="countedGroups" />
             <TabsContent value="Methods">
               <TabCard

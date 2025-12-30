@@ -45,6 +45,7 @@ const savedInput = ref('')
 watch(open, (isOpen) => {
   if (!isOpen) {
     savedInput.value = input.value
+    performSearch(savedInput.value);
   } else {
     input.value = savedInput.value
   }

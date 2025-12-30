@@ -40,6 +40,16 @@ watch([Meta_K, Ctrl_K], (v) => {
 });
 
 const input = ref('');
+const savedInput = ref('')
+
+watch(open, (isOpen) => {
+  if (!isOpen) {
+    savedInput.value = input.value
+  } else {
+    input.value = savedInput.value
+  }
+})
+
 const searchResult = ref<Item[]>([]);
 const searchLoading = ref(false);
 
@@ -100,12 +110,11 @@ async function handleClick(item: Item) {
   open.value = false;
   await router.push(item.link);
 }
-
 </script>
 
 <template>
   <Dialog v-model:open="open">
-    <DialogContent class="p-0" forceMount>
+    <DialogContent class="p-0">
       <VisuallyHidden as-child>
         <DialogTitle />
       </VisuallyHidden>

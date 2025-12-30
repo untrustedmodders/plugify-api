@@ -240,6 +240,8 @@ function selectGroup(name?: string) {
                   title="Methods"
                   :elements="Object.values(filteredGroups.methods)"
                   :onclick="selectRow"
+                  :group="store.selectedGroup"
+                  :url="store.selectedDocUrl"
                   class="w-full max-w-full"
               />
             </TabsContent>
@@ -248,6 +250,8 @@ function selectGroup(name?: string) {
                   title="Delegates"
                   :elements="Object.values(filteredGroups.delegates)"
                   :onclick="selectRow"
+                  :group="store.selectedGroup"
+                  :url="store.selectedDocUrl"
                   class="w-full max-w-full"
               />
             </TabsContent>
@@ -256,6 +260,8 @@ function selectGroup(name?: string) {
                   title="Enumerators"
                   :elements="Object.values(filteredGroups.enumerators)"
                   :onclick="selectRow"
+                  :group="store.selectedGroup"
+                  :url="store.selectedDocUrl"
                   class="w-full max-w-full"
               />
             </TabsContent>
@@ -264,6 +270,8 @@ function selectGroup(name?: string) {
                   title="Classes"
                   :elements="Object.values(filteredGroups.classes)"
                   :onclick="selectRow"
+                  :group="store.selectedGroup"
+                  :url="store.selectedDocUrl"
                   class="w-full max-w-full"
               />
             </TabsContent>

@@ -14,7 +14,10 @@ const props = defineProps<{
   title: string;
   elements: BaseType[];
   onclick: (name?: string) => void;
+  group: string;
+  url: string;
 }>()
+const root = ref(window.location.origin);
 </script>
 
 <template>
@@ -34,13 +37,17 @@ const props = defineProps<{
             </TableRow>
           </TableHeader>
           <TableBody v-for="element in elements" :key="element.name">
-            <TableRow
-                @click.stop="onclick(element.name)"
-                class="cursor-pointer"
-            >
-              <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
-              <TableCell class="align-top break-words">{{ element.description }}</TableCell>
-            </TableRow>
+              <TableRow
+                  @click.stop="onclick(element.name)"
+                  class="cursor-pointer"
+              >
+                <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">
+                  <NuxtLink :to="`${root}?file=${url}#/${group}/${element.name}`">
+                    {{ element.name }}
+                  </NuxtLink>
+                </TableCell>
+                <TableCell class="align-top break-words">{{ element.description }}</TableCell>
+              </TableRow>
           </TableBody>
         </Table>
       </div>

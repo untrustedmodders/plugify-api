@@ -105,7 +105,7 @@ async function handleClick(item: Item) {
 
 <template>
   <Dialog v-model:open="open">
-    <DialogContent class="p-0">
+    <DialogContent class="p-0" forceMount>
       <VisuallyHidden as-child>
         <DialogTitle />
       </VisuallyHidden>

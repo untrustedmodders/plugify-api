@@ -22,7 +22,7 @@ export default defineAppConfig({
       },
       links: [{
         icon: 'simple-icons:discord',
-        to: 'https://discord.gg/untrustedmodders',
+        to: 'https://discord.gg/rX9TMmpang',
         target: '_blank',
       }, {
         icon: 'simple-icons:github',
@@ -42,7 +42,7 @@ export default defineAppConfig({
       credits: `Copyright © 2023-${new Date().getFullYear()} Plugify - MIT License`,
       links: [{
         icon: 'simple-icons:discord',
-        to: 'https://discord.gg/untrustedmodders',
+        to: 'https://discord.gg/rX9TMmpang',
         target: '_blank',
       }, {
         icon: 'simple-icons:github',

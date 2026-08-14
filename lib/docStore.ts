@@ -12,6 +12,7 @@ import type {
 
     ClassType,
 } from '~/lib/manifest';
+import { definitionOf, resolveManifest } from '~/lib/manifest';
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
@@ -30,14 +31,17 @@ function ProcessItem(
     delgs: MethodMap,
     enums: EnumMap
 ): void {
-    if (param.prototype && param.prototype.name) {
-        if (!delgs[param.prototype.name]) {
-            delgs[param.prototype.name] = param.prototype;
+    const prototype = definitionOf(param.prototype);
+    const enumerator = definitionOf(param.enum);
+
+    if (prototype && prototype.name) {
+        if (!delgs[prototype.name]) {
+            delgs[prototype.name] = prototype;
+            ProcessMethod(prototype, delgs, enums);
         }
-        ProcessMethod(param.prototype, delgs, enums);
-    } else if (param.enum && param.enum.name) {
-        if (!enums[param.enum.name] && param.enum.values) {
-            enums[param.enum.name] = param.enum;
+    } else if (enumerator && enumerator.name) {
+        if (!enums[enumerator.name] && enumerator.values) {
+            enums[enumerator.name] = enumerator;
         }
     }
 }
@@ -182,7 +186,9 @@ export const useDocStore = defineStore('docStore', {
         async refreshDocInBackground(url: string) {
             try {
                 const response: Response = await fetch(url);
-                const manifest: ManifestType = await response.json();
+                // Link by-name prototype/enum references before anything reads the
+                // manifest, so the rest of this store only ever sees definitions.
+                const manifest: ManifestType = resolveManifest(await response.json());
 
                 let data: Document = {};
 

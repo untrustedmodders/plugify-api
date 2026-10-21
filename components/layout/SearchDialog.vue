@@ -111,9 +111,7 @@ async function handleSelect(item: Item) {
 
 <template>
   <Dialog v-model:open="open">
-    <!-- Closing must not hand focus back to the search button: after Esc the browser would
-         show its keyboard focus ring there, as if the button were still selected -->
-    <DialogContent class="p-0" @close-auto-focus.prevent>
+    <DialogContent class="p-0">
       <VisuallyHidden as-child>
         <DialogTitle />
       </VisuallyHidden>

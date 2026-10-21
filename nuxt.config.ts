@@ -1,6 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import {dirname, join} from "node:path";
 import {fileURLToPath} from "node:url";
+import defaultManifests from "./manifests.json";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
@@ -42,6 +43,14 @@ export default defineNuxtConfig({
   icon: {
     clientBundle: {
       scan: true,
+      // The API cards take their icons from manifests.json, which the scan cannot see;
+      // GitHub Pages has no server to fetch missing icons from, so bundle them
+      icons: [
+        ...defaultManifests.map(manifest => manifest.icon).filter((icon): icon is string => !!icon),
+        // Header and footer links name their icons in app.config.ts, which the scan skips too
+        'simple-icons:discord',
+        'simple-icons:github',
+      ],
       sizeLimitKb: 512,
     },
   },

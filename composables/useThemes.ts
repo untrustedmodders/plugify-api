@@ -11,14 +11,16 @@ export function useThemes() {
   const isDark = computed(() => colorMode.value === 'dark');
 
   const defaultTheme = useConfig().value.theme;
-  const config = useCookie<Config>('theme', {
+  // Renamed from 'theme': that cookie got the old default written for every visitor, so
+  // everyone would have kept it instead of getting Plugify as the new default
+  const config = useCookie<Config>('site-theme', {
     default: (): Config => ({
       theme: defaultTheme.color,
       radius: defaultTheme.radius,
     }),
   });
   // An empty or broken cookie parses to null; fall back to the defaults
-  if (!config.value || typeof config.value !== 'object') {
+  if (!config.value || typeof config.value !== 'object' || !themes.some(t => t.name === config.value.theme)) {
     config.value = { theme: defaultTheme.color, radius: defaultTheme.radius };
   }
 

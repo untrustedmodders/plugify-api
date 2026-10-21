@@ -33,6 +33,8 @@
     "vue-router": "^4.5.0"
   },
   "devDependencies": {
+    "@iconify-json/lucide": "^1.2.147",
+    "@iconify-json/simple-icons": "^1.2.100",
     "rollup": "^4.37.0"
   }
 }

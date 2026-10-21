@@ -133,7 +133,6 @@ type Color =
   | 'blue'
   | 'yellow'
   | 'violet'
-  | 'default'
   | 'plugify';
 
 

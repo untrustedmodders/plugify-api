@@ -23,7 +23,7 @@ const defaultConfig: DefaultConfig = {
   },
   theme: {
     customizable: true,
-    color: 'zinc',
+    color: 'plugify',
     radius: 0.5,
   },
   banner: {

@@ -27,7 +27,6 @@ const { themeClass, theme, radius, setTheme, setRadius } = useThemes();
 // Create an array of color values
 const allColors: Color[] = [
   'plugify',
-  'default',
   'zinc',
   'slate',
   'stone',

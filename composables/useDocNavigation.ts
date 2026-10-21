@@ -28,13 +28,20 @@ export function useDocNavigation() {
 
   /** Selects an API and opens its first group once the manifest is loaded. */
   async function openApi(url: string) {
-    store.addDocUrl(url);
-    if (url !== store.selectedDocUrl) store.selectDoc(url);
-    const doc = await store.ensureDoc(url);
-    const first = Object.entries(doc || {})
-      .find(([, content]) => Object.keys(content.methods).length + Object.keys(content.classes).length > 0)?.[0];
-    if (store.selectedDocUrl !== url) return; // another API was picked meanwhile
-    return go(first ? `#/${first}` : '#/');
+    // Selecting clears the open page; show loading instead of the home page until the
+    // API's first group is open
+    store.openingApi = url;
+    try {
+      store.addDocUrl(url);
+      if (url !== store.selectedDocUrl) store.selectDoc(url);
+      const doc = await store.ensureDoc(url);
+      const first = Object.entries(doc || {})
+        .find(([, content]) => Object.keys(content.methods).length + Object.keys(content.classes).length > 0)?.[0];
+      if (store.selectedDocUrl !== url) return; // another API was picked meanwhile
+      await go(first ? `#/${first}` : '#/');
+    } finally {
+      if (store.openingApi === url) store.openingApi = '';
+    }
   }
 
   return { go, queryFor, openApi };

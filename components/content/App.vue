@@ -189,7 +189,7 @@ function selectGroup(name?: string) {
   <DocsLayout @select-group="selectGroup">
     <!-- Until the saved state and the linked manifest are in, show a spinner rather than
          flashing the home page before the linked API -->
-    <template v-if="!store.ready || (store.selectedGroup && (isRefreshing || store.resolvingGroup
+    <template v-if="!store.ready || store.openingApi || (store.selectedGroup && (isRefreshing || store.resolvingGroup
         || (store.selectedDocUrl && !store.docs[store.selectedDocUrl] && !store.isInvalid[store.selectedDocUrl])))">
       <Spinner />
     </template>

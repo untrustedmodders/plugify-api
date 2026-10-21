@@ -130,6 +130,8 @@ export const useDocStore = defineStore('docStore', {
         ready: false,
         // The group of a link being looked up in other manifests (see findManifestWithGroup)
         resolvingGroup: '',
+        // The API being opened by openApi (see useDocNavigation), shown as loading meanwhile
+        openingApi: '',
         isInvalid: {} as Record<string, boolean>,
 
         docInfo: {} as Record<string, ManifestInfo>,

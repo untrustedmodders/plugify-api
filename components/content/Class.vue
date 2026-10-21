@@ -39,7 +39,7 @@ const groupMethods = computed(() => {
 <template>
   <Card>
     <CardHeader class="px-7">
-      <CardTitle>
+      <CardTitle class="break-all">
         <BackButton :group="group" />
         {{ klass.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${klass.name}`"/>
@@ -85,7 +85,7 @@ const groupMethods = computed(() => {
                   </a>
                 </TableCell>
                 <TableCell class="align-top text-muted-foreground break-words">
-                  {{ groupMethods[constructor].description }}
+                  {{ groupMethods[constructor]?.description }}
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -112,7 +112,7 @@ const groupMethods = computed(() => {
                   </a>
                 </TableCell>
                 <TableCell class="align-top text-muted-foreground break-words">
-                  {{ groupMethods[klass.destructor].description }}
+                  {{ groupMethods[klass.destructor]?.description }}
                 </TableCell>
               </TableRow>
             </TableBody>

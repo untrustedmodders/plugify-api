@@ -80,11 +80,15 @@ watch(
   },
 );
 
-function getHighlightedContent(text: string) {
-  if (!input.value) return text;
+// Splits text into plain/matched parts so the template can highlight without v-html
+function getHighlightedParts(text: string) {
+  if (!input.value) return [{ text, match: false }];
   const escapedInput = input.value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const regex = new RegExp(escapedInput, 'gi');
-  return text.replace(regex, (match) => `<span class="font-semibold underline">${match}</span>`);
+  const regex = new RegExp(`(${escapedInput})`, 'gi');
+  // With a capturing group, split puts matches at odd indexes
+  return text.split(regex)
+    .map((part, i) => ({ text: part, match: i % 2 === 1 }))
+    .filter(part => part.text.length > 0);
 }
 
 const router = useRouter();
@@ -166,7 +170,13 @@ async function handleClick(item: Item) {
                 <span class="shrink-0 self-center">
                   {{ item.name }}
                 </span>
-                <span class="ml-2 self-center truncate text-xs text-muted-foreground" v-html="getHighlightedContent(item.name)" />
+                <span class="ml-2 self-center truncate text-xs text-muted-foreground">
+                  <span
+                      v-for="(part, j) in getHighlightedParts(item.name)"
+                      :key="j"
+                      :class="[part.match && 'font-semibold underline']"
+                  >{{ part.text }}</span>
+                </span>
               </template>
             </CommandItem>
           </div>

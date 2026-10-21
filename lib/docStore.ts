@@ -96,6 +96,19 @@ function formatUrl(url: string) {
     return url;
 }
 
+// Turns a user-supplied link into the raw manifest URL, or null if it is not http(s)
+function normalizeDocUrl(url: string): string | null {
+    try {
+        const u = new URL(formatUrl(url));
+        if (u.protocol === "http:" || u.protocol === "https:") {
+            return u.href;
+        }
+    } catch (error) {
+        console.error('Invalid url:', error);
+    }
+    return null;
+}
+
 export function formatName(url: string) {
     const parts = url.split('/');
     const filename = parts.pop() || ''; // Ensure it's a string
@@ -150,10 +163,11 @@ export const useDocStore = defineStore('docStore', {
                 localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
             }
 
-            if (selectedDocUrl) {
-                this.addDocUrl(selectedDocUrl);
+            const fileUrl = typeof selectedDocUrl === 'string' ? normalizeDocUrl(selectedDocUrl) : null;
+            if (fileUrl) {
+                this.addDocUrl(fileUrl);
             }
-            this.selectedDocUrl = selectedDocUrl || localStorage.getItem('selectedDocUrl') || '';
+            this.selectedDocUrl = fileUrl || localStorage.getItem('selectedDocUrl') || '';
             this.selectedDoc = this.docs[this.selectedDocUrl];
             localStorage.setItem('selectedDocUrl', this.selectedDocUrl);
             this.loadDoc(this.selectedDocUrl);
@@ -293,15 +307,11 @@ export const useDocStore = defineStore('docStore', {
         },
 
         addDocUrl(url: string) {
-            try {
-                const u = new URL(formatUrl(url));
-                if ((u.protocol === "http:" || u.protocol === "https:") && !this.docUrls.includes(u.href)) {
-                    this.docUrls.push(u.href);
-                    localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
-                    return true;
-                }
-            } catch (error) {
-                console.error('Invalid url:', error);
+            const href = normalizeDocUrl(url);
+            if (href && !this.docUrls.includes(href)) {
+                this.docUrls.push(href);
+                localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
+                return true;
             }
             return false;
         },

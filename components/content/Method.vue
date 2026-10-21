@@ -21,7 +21,7 @@ const root = ref(window.location.origin);
 <template>
   <Card>
     <CardHeader>
-      <CardTitle>
+      <CardTitle class="break-all">
         <BackButton :group="group" />
         {{ method.name }}
         <CopyButton :code="`${root}?file=${url}#/${group}/${method.name}`"/>
@@ -32,13 +32,13 @@ const root = ref(window.location.origin);
     </CardHeader>
     <CardContent>
       <div class="mb-4 overflow-x-auto">
-        <code class="bg-secondary p-2 md:p-[5px] whitespace-pre block w-full rounded-md text-xs md:text-sm">
+        <code class="bg-secondary p-2 md:p-[5px] whitespace-pre block w-max min-w-full rounded-md text-xs md:text-sm">
           <span>native </span>
-          <Signature :group="method.group" :param="method.retType"/>
+          <Signature :group="group" :param="method.retType"/>
           <span>{{ method.name }}(</span>
           <span v-if="method.paramTypes && method.paramTypes.length > 0">
             <span v-for="(param, index) in method.paramTypes" :key="index">
-              <Signature :group="method.group" :param="param"/>
+              <Signature :group="group" :param="param"/>
               <span v-if="method.paramTypes.length - 1 !== index">,&nbsp</span>
             </span>
           </span>
@@ -49,13 +49,13 @@ const root = ref(window.location.origin);
         <ul v-if="method.paramTypes && method.paramTypes.length > 0">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Parameters</h4>
           <li v-for="(param, index) in method.paramTypes" :key="index">
-            <Parameter :group="method.group" :param="param"/>
+            <Parameter :group="group" :param="param"/>
           </li>
         </ul>
         <ul v-if="method.retType && method.retType.type !== 'void'">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Return</h4>
           <li>
-            <Parameter :group="method.group" :param="method.retType"/>
+            <Parameter :group="group" :param="method.retType"/>
           </li>
         </ul>
         <ul v-if="method.error">

@@ -22,5 +22,17 @@
     "name": "Configs",
     "description": "A system to read and write configuration files.",
     "icon": "lucide:file-cog"
+  },
+  {
+    "url": "https://github.com/untrustedmodders/plugify-plugin-permissions/blob/main/plugify-plugin-permissions.pplugin.in",
+    "name": "Permissions",
+    "description": "Users and groups with permissions, options and expiration, plus events for every change.",
+    "icon": "lucide:user-round-key"
+  },
+  {
+    "url": "https://github.com/untrustedmodders/plugify-plugin-translations/blob/main/plugify-plugin-translations.pplugin.in",
+    "name": "Translations",
+    "description": "A plugin that provides a system to read and write translations files.",
+    "icon": "lucide:languages"
   }
 ]

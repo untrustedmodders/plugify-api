@@ -86,7 +86,8 @@ const countedGroups = computed(() => {
 const filteredGroups = computed(() => store.selectedDoc?.[store.selectedGroup]);
 const isRefreshing = computed(() => store.isRefreshing[store.selectedDocUrl]);
 
-watch(() => route.hash, (newHash, oldHash) => {
+// router.currentRoute rather than useRoute(): Nuxt's route lags behind hash navigation
+watch(() => router.currentRoute.value.hash, (newHash) => {
   store.onRouteChange(newHash);
 });
 
@@ -98,24 +99,33 @@ watch(() => store.selectedItem, (newItem, oldItem) => {
   }
 });
 
-// Restores the saved tab of a group, falling back to its first non-empty tab
-// (a group may hold only classes, so 'Methods' can be empty)
+const TAB_NAMES = ['Methods', 'Delegates', 'Enumerators', 'Classes']
+
+// The tab named in the URL (#/group?tab=classes), so a link can open a group on a given tab
+function tabFromUrl() {
+  const value = store.selectedTab.toLowerCase()
+  return TAB_NAMES.find(name => name.toLowerCase() === value)
+}
+
+// Picks the tab from the URL, else the one saved for the group, falling back to
+// the first non-empty tab (a group may hold only classes, so 'Methods' can be empty)
 function pickTab(group: string) {
-  const savedTab = activeTabPerGroup.get(group) || 'Methods'
+  const wanted = [tabFromUrl(), activeTabPerGroup.get(group), 'Methods']
   const content = store.selectedDoc?.[group]
-  if (!content) return savedTab
+  if (!content) return wanted.find(Boolean) as string
   const counts: Record<string, number> = {
     Methods: Object.keys(content.methods).length,
     Delegates: Object.keys(content.delegates).length,
     Enumerators: Object.keys(content.enumerators).length,
     Classes: Object.keys(content.classes).length,
   }
-  if (counts[savedTab] > 0) return savedTab
-  return Object.keys(counts).find(name => counts[name] > 0) || savedTab
+  return wanted.find(name => name && counts[name] > 0)
+    || TAB_NAMES.find(name => counts[name] > 0)
+    || 'Methods'
 }
 
-// Watch for group changes (or the doc arriving) and restore the active tab
-watch(() => [store.selectedGroup, store.selectedDoc] as const, ([newGroup]) => {
+// Watch for group changes, the doc arriving or a ?tab= change, and pick the active tab
+watch(() => [store.selectedGroup, store.selectedDoc, tabFromUrl()] as const, ([newGroup]) => {
   if (newGroup) {
     currentTab.value = pickTab(newGroup)
   }
@@ -125,6 +135,17 @@ watch(() => [store.selectedGroup, store.selectedDoc] as const, ([newGroup]) => {
 watch(currentTab, (newTab) => {
   if (store.selectedGroup && newTab) {
     activeTabPerGroup.set(store.selectedGroup, newTab)
+  }
+});
+
+// Mirror the active tab of the group view into the hash (#/group?tab=classes) so its
+// URL can be shared; links to a group carry no tab, so this also runs on group changes
+watch(() => [currentTab.value, store.selectedGroup, store.selectedItem, store.selectedTab] as const, ([tab, group, item, urlTab]) => {
+  if (!group || item) return
+  const value = tab.toLowerCase()
+  if (urlTab !== value) {
+    const current = router.currentRoute.value
+    router.replace({ query: current.query, hash: `#/${group}?tab=${value}` })
   }
 });
 

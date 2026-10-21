@@ -130,6 +130,8 @@ export const useDocStore = defineStore('docStore', {
 
         selectedGroup: '',
         selectedItem: '',
+        // The ?tab= of a group view, e.g. #/Events?tab=classes
+        selectedTab: '',
 
         fragments: [] as string[],
         foundMethod: null as MethodType | null,
@@ -407,8 +409,11 @@ export const useDocStore = defineStore('docStore', {
         },
 
         onRouteChange(hash: string) {
-            const segments = hash
-                .replace(/^#\/?/, "")
+            // A group view may carry its tab after the path: #/group?tab=classes
+            const [path, search = ''] = hash.replace(/^#\/?/, "").split("?", 2);
+            this.selectedTab = new URLSearchParams(search).get('tab') ?? '';
+
+            const segments = path
                 .split("/")
                 .map(segment => segment.trim())
                 .filter(segment => segment.length > 0);

@@ -10,8 +10,8 @@ const customDefu = createDefu((obj, key, value) => {
 
 const defaultConfig: DefaultConfig = {
   site: {
-    name: 'shadcn-docs',
-    description: 'Beautifully designed Nuxt Content template built with shadcn-vue. Customizable. Compatible. Open Source.',
+    name: 'plugify',
+    description: 'Plugin API documentation for Plugify manifests.',
     ogImage: '/hero.png',
     ogImageComponent: 'ShadcnDocs',
     ogImageColor: 'light',
@@ -29,14 +29,14 @@ const defaultConfig: DefaultConfig = {
   banner: {
     enable: false,
     showClose: true,
-    content: 'Welcome to **shadcn-docs-nuxt**',
+    content: '',
     to: '',
     target: '_blank',
     border: true,
   },
   header: {
     showLoadingIndicator: true,
-    title: 'shadcn-docs',
+    title: 'Plugify API',
     showTitle: true,
     logo: {
       light: '/logo.svg',

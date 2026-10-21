@@ -17,7 +17,8 @@ const props = defineProps<{
   group: string;
   url: string;
 }>()
-const root = ref(window.location.origin);
+// useRequestURL works on the server too, unlike window.location
+const root = useRequestURL().origin;
 </script>
 
 <template>
@@ -53,26 +54,24 @@ const root = ref(window.location.origin);
         </code>
       </div>
       <div>
-        <ul v-if="method.paramTypes && method.paramTypes.length > 0">
+        <section v-if="method.paramTypes && method.paramTypes.length > 0">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Parameters</h4>
-          <li v-for="(param, index) in method.paramTypes" :key="index">
-            <Parameter :group="group" :param="param"/>
-          </li>
-        </ul>
-        <ul v-if="method.retType && method.retType.type !== 'void'">
+          <ul>
+            <li v-for="(param, index) in method.paramTypes" :key="index">
+              <Parameter :group="group" :param="param"/>
+            </li>
+          </ul>
+        </section>
+        <section v-if="method.retType && method.retType.type !== 'void'">
           <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Return</h4>
-          <li>
-            <Parameter :group="group" :param="method.retType"/>
-          </li>
-        </ul>
-        <ul v-if="method.error">
-          <h3 class="text-lg font-semibold leading-none tracking-tight pb-3">Error</h3>
-          <li>
-            <CardContent>
-              {{ method.error }}
-            </CardContent>
-          </li>
-        </ul>
+          <Parameter :group="group" :param="method.retType"/>
+        </section>
+        <section v-if="method.error">
+          <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Error</h4>
+          <CardContent>
+            {{ method.error }}
+          </CardContent>
+        </section>
       </div>
     </CardContent>
   </Card>

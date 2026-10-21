@@ -3,7 +3,6 @@ import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-nex
 import { onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, formatName } from '~/lib/docStore'
-import { useWindowSize } from '@vueuse/core'
 
 // Scroll position tracking for hash-based routing
 const scrollPositions = new Map<string, number>()
@@ -50,14 +49,14 @@ const route = useRoute();
 const router = useRouter();
 const store = useDocStore();
 
-const { width } = useWindowSize()
-const isSmall = computed(() => width.value < 640)
-
 useHead({
   title: () => `Plugify API ${store.selectedGroup ? ` :: ${store.selectedGroup}` : ``} ${store.selectedItem ? ` :: ${store.selectedItem}` : ``}`,
 });
 
 onMounted(() => {
+  // The hash never reaches the server, so it is read only after hydration;
+  // reading it during setup made the client render differ from the server's
+  store.onRouteChange(router.currentRoute.value.hash);
   store.initDB(route.query.file);
 })
 
@@ -87,7 +86,6 @@ const countedGroups = computed(() => {
 const filteredGroups = computed(() => store.selectedDoc?.[store.selectedGroup]);
 const isRefreshing = computed(() => store.isRefreshing[store.selectedDocUrl]);
 
-store.onRouteChange(router.currentRoute.value.hash);
 watch(() => route.hash, (newHash, oldHash) => {
   store.onRouteChange(newHash);
 });
@@ -219,7 +217,7 @@ function selectGroup(name?: string) {
                 :key="i"
                 :to="link?.to"
                 :target="link?.target"
-                v-if="!isSmall || i < 2"
+                :class="{ 'max-sm:hidden': i >= 2 }"
             >
               <Button variant="ghost" size="icon" class="flex gap-2">
                 <Icon v-if="link?.icon" :name="link.icon" :size="18" />

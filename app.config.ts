@@ -13,7 +13,7 @@ export default defineAppConfig({
       radius: 0.5,
     },
     header: {
-      title: 'shadcn-docs-starter',
+      title: 'Plugify API',
       showTitle: false,
       darkModeToggle: true,
       logo: {

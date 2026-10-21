@@ -26,7 +26,8 @@ const props = defineProps<{
   url: string;
 }>();
 
-const root = ref(window.location.origin);
+// useRequestURL works on the server too, unlike window.location
+const root = useRequestURL().origin;
 const store = useDocStore();
 
 // Get methods from the current group to resolve method names

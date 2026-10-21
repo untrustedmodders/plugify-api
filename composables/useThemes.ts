@@ -7,8 +7,8 @@ interface Config {
 }
 
 export function useThemes() {
-  const { value: color } = useColorMode();
-  const isDark = color === 'dark';
+  const colorMode = useColorMode();
+  const isDark = computed(() => colorMode.value === 'dark');
 
   const defaultTheme = useConfig().value.theme;
   const config = useCookie<Config>('theme', {
@@ -17,8 +17,6 @@ export function useThemes() {
       radius: defaultTheme.radius,
     }),
   });
-
-  console.log('def color:', defaultTheme.color, 'def radius:', defaultTheme.radius);
 
   const theme = computed(() => config.value.theme);
   const radius = computed(() => config.value.radius);
@@ -35,7 +33,7 @@ export function useThemes() {
 
   const themePrimary = computed(() => {
     const t = themes.find(t => t.name === theme.value);
-    return `hsl(${t?.cssVars[isDark ? 'dark' : 'light'].primary})`;
+    return `hsl(${t?.cssVars[isDark.value ? 'dark' : 'light'].primary})`;
   });
 
   return {

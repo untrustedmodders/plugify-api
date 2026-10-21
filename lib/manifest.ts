@@ -13,7 +13,8 @@ export type BaseType = {
 };
 
 export type EnumValue = BaseType & {
-    value?: bigint;
+    // JSON.parse yields a number, so values beyond 2^53 lose precision
+    value?: number;
 };
 
 export type EnumType = BaseType & {

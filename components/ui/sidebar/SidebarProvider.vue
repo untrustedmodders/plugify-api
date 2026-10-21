@@ -2,7 +2,7 @@
 import { cn } from '@/lib/utils'
 import { useEventListener, useMediaQuery, useVModel } from '@vueuse/core'
 import { TooltipProvider } from 'radix-vue'
-import { computed, type HTMLAttributes, type Ref, ref } from 'vue'
+import { computed, type HTMLAttributes, onMounted, type Ref, ref, watch } from 'vue'
 import { provideSidebarContext, SIDEBAR_COOKIE_MAX_AGE, SIDEBAR_COOKIE_NAME, SIDEBAR_KEYBOARD_SHORTCUT, SIDEBAR_WIDTH, SIDEBAR_WIDTH_ICON } from './utils'
 
 const props = withDefaults(defineProps<{
@@ -18,7 +18,13 @@ const emits = defineEmits<{
   'update:open': [open: boolean]
 }>()
 
-const isMobile = useMediaQuery('(max-width: 768px)')
+// The server has no viewport, so keep the desktop layout until mounted;
+// switching during hydration made the client render differ from the server's
+const matchesMobile = useMediaQuery('(max-width: 768px)')
+const isMobile = ref(false)
+onMounted(() => {
+  watch(matchesMobile, (value) => { isMobile.value = value }, { immediate: true })
+})
 const openMobile = ref(false)
 
 const open = useVModel(props, 'open', emits, {

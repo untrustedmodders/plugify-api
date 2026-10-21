@@ -127,7 +127,7 @@ async function handleSelect(item: Item) {
         <CommandList class="text-sm" @escape-key-down="open = false">
           <div v-if="!input?.length" class="py-6 text-center text-muted-foreground">
             <p class="text-sm">Type to search...</p>
-            <p class="text-xs mt-1">Search across methods, delegates, and enumerators</p>
+            <p class="text-xs mt-1">Search across groups, methods, delegates, enumerators, and classes</p>
           </div>
 
           <div v-else-if="searchResult?.length" class="p-1.5">

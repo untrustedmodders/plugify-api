@@ -24,7 +24,8 @@ const props = defineProps<{
   group: string;
   url: string;
 }>()
-const root = ref(window.location.origin);
+// useRequestURL works on the server too, unlike window.location
+const root = useRequestURL().origin;
 
 // Rows are rendered in pages: a group with thousands of entries would otherwise
 // block the page for seconds, like the search dialog did
@@ -36,6 +37,14 @@ watch(tableKey, (key) => {
 });
 const visibleElements = computed(() => props.elements.slice(0, limit.value));
 const remaining = computed(() => props.elements.length - visibleElements.value.length);
+
+// A plain click opens the row in place (App saves the scroll position first);
+// modified clicks fall through to the link so Ctrl/Shift+click open a new tab
+function onRowClick(event: MouseEvent, name?: string) {
+  if (event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+  event.preventDefault();
+  props.onclick(name);
+}
 
 function showMore() {
   limit.value += PAGE_SIZE;
@@ -63,13 +72,13 @@ function showMore() {
               <TableRow
                   v-for="element in visibleElements"
                   :key="element.name"
-                  @click.stop="onclick(element.name)"
+                  @click="onRowClick($event, element.name)"
                   class="cursor-pointer"
               >
                 <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">
-                  <NuxtLink :to="`${root}?file=${url}#/${group}/${element.name}`">
+                  <a :href="`${root}?file=${url}#/${group}/${element.name}`">
                     {{ element.name }}
-                  </NuxtLink>
+                  </a>
                   <Badge v-if="element.deprecated" variant="destructive" class="ml-2 text-[0.625rem]">deprecated</Badge>
                 </TableCell>
                 <TableCell class="align-top break-words">{{ element.description }}</TableCell>

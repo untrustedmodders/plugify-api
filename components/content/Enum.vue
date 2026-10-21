@@ -17,7 +17,8 @@ const props = defineProps<{
   group: string;
   url: string;
 }>()
-const root = ref(window.location.origin);
+// useRequestURL works on the server too, unlike window.location
+const root = useRequestURL().origin;
 </script>
 
 <template>
@@ -42,8 +43,8 @@ const root = ref(window.location.origin);
               <TableHead class="min-w-[200px] md:w-[50%]">Description</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody v-for="element in enumerator.values" :key="element.name">
-            <TableRow>
+          <TableBody>
+            <TableRow v-for="element in enumerator.values" :key="element.name">
               <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
               <TableCell class="align-top font-mono whitespace-nowrap">{{ element.value }}</TableCell>
               <TableCell class="align-top break-words">{{ element.description }}</TableCell>

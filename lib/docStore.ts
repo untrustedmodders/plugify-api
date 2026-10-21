@@ -254,15 +254,22 @@ export const useDocStore = defineStore('docStore', {
                 // A manifest is usable as long as it documents methods or classes
                 this.isInvalid[url] = manifest.methods === undefined && manifest.classes === undefined;
 
-                await this.setCacheDoc(url, data);
-                this.onDataUpdated(url, data);
-                console.debug('Successfully updated data');
+                // The manifest may have been removed while it was loading
+                if (this.docUrls.includes(url)) {
+                    await this.setCacheDoc(url, data);
+                    this.onDataUpdated(url, data);
+                    console.debug('Successfully updated data');
+                }
             } catch (error) {
                 console.error(`Error refreshing doc ${url}:`, error);
                 this.isInvalid[url] = true;
             }
 
             this.isRefreshing[url] = false;
+            if (!this.docUrls.includes(url)) {
+                delete this.isInvalid[url];
+                delete this.isRefreshing[url];
+            }
         },
 
         async setCacheDoc(url: string, data: Document) {
@@ -274,6 +281,16 @@ export const useDocStore = defineStore('docStore', {
                 await tx.done;
             } catch (error) {
                 console.error('Error caching document:', error);
+            }
+        },
+
+        async deleteCachedDoc(url: string) {
+            try {
+                const tx = this.db.transaction('docFiles', 'readwrite');
+                await tx.objectStore('docFiles').delete(url);
+                await tx.done;
+            } catch (error) {
+                console.error('Error deleting cached document:', error);
             }
         },
 
@@ -322,9 +339,13 @@ export const useDocStore = defineStore('docStore', {
             this.docUrls = this.docUrls.filter(u => u !== url);
             localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
 
+            delete this.docs[url];
+            delete this.isInvalid[url];
+            delete this.isRefreshing[url];
+            this.deleteCachedDoc(url);
+
             const current = this.selectedDocUrl === url;
             if (current) {
-                delete this.docs[this.selectedDocUrl];
                 this.selectedDocUrl = '';
                 this.selectedDoc = {};
 

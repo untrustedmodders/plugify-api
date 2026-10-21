@@ -26,7 +26,9 @@ const enumerator = computed(() => definitionOf(props.param?.enum));
   <span v-else class="text-primary">
     {{ param?.type }}
   </span>
+  <span v-if="param?.ref" class="text-primary">&amp;</span>
   <strong>&nbsp{{ param?.name }}</strong>
+  <span v-if="param?.alias?.name" class="text-sm text-muted-foreground">&nbsp(alias {{ param.alias.name }})</span>
   <CardContent>
     {{ param?.description }}
   </CardContent>

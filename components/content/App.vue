@@ -103,11 +103,26 @@ watch(() => store.selectedItem, (newItem, oldItem) => {
   }
 });
 
-// Watch for group changes and restore the active tab
-watch(() => store.selectedGroup, (newGroup) => {
+// Restores the saved tab of a group, falling back to its first non-empty tab
+// (a group may hold only classes, so 'Methods' can be empty)
+function pickTab(group: string) {
+  const savedTab = activeTabPerGroup.get(group) || 'Methods'
+  const content = store.selectedDoc?.[group]
+  if (!content) return savedTab
+  const counts: Record<string, number> = {
+    Methods: Object.keys(content.methods).length,
+    Delegates: Object.keys(content.delegates).length,
+    Enumerators: Object.keys(content.enumerators).length,
+    Classes: Object.keys(content.classes).length,
+  }
+  if (counts[savedTab] > 0) return savedTab
+  return Object.keys(counts).find(name => counts[name] > 0) || savedTab
+}
+
+// Watch for group changes (or the doc arriving) and restore the active tab
+watch(() => [store.selectedGroup, store.selectedDoc] as const, ([newGroup]) => {
   if (newGroup) {
-    const savedTab = activeTabPerGroup.get(newGroup)
-    currentTab.value = savedTab || 'Methods'
+    currentTab.value = pickTab(newGroup)
   }
 });
 
@@ -172,7 +187,7 @@ function selectGroup(name?: string) {
                 <SidebarMenuButton
                     class="text-muted-foreground hover:text-primary"
                     v-bind:class="{ 'text-primary bg-muted' : group === store.selectedGroup }"
-                    v-if="Object.values(data.methods).length > 0"
+                    v-if="Object.values(data.methods).length + Object.values(data.classes).length > 0"
                     @click="selectGroup(group)"
                 >
                   {{ group }}

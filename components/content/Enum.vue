@@ -37,13 +37,15 @@ const root = ref(window.location.origin);
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead class="min-w-[120px] md:w-[40%]">Name</TableHead>
-              <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
+              <TableHead class="min-w-[120px] md:w-[35%]">Name</TableHead>
+              <TableHead class="min-w-[80px] md:w-[15%]">Value</TableHead>
+              <TableHead class="min-w-[200px] md:w-[50%]">Description</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody v-for="element in enumerator.values" :key="element.name">
             <TableRow>
               <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
+              <TableCell class="align-top font-mono whitespace-nowrap">{{ element.value }}</TableCell>
               <TableCell class="align-top break-words">{{ element.description }}</TableCell>
             </TableRow>
           </TableBody>

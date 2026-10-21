@@ -229,9 +229,6 @@ export const useDocStore = defineStore('docStore', {
                             classes: {}
                         };
                     }
-                    this.isInvalid[url] = false;
-                } else {
-                    this.isInvalid[url] = true;
                 }
 
                 if (manifest.classes !== undefined) {
@@ -245,12 +242,14 @@ export const useDocStore = defineStore('docStore', {
                     }, {});
 
                     for (const [group, classes] of Object.entries(classMap)) {
-                        const entry = data[group];
-                        if (entry) {
-                            entry.classes = classes;
-                        }
+                        // A group may hold only classes, so create it when no method made it
+                        data[group] ??= { methods: {}, delegates: {}, enumerators: {}, classes: {} };
+                        data[group].classes = classes;
                     }
                 }
+
+                // A manifest is usable as long as it documents methods or classes
+                this.isInvalid[url] = manifest.methods === undefined && manifest.classes === undefined;
 
                 await this.setCacheDoc(url, data);
                 this.onDataUpdated(url, data);

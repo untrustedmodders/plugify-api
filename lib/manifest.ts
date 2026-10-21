@@ -26,6 +26,7 @@ export type MethodType = BaseType & {
     paramTypes?: ParamType[];
     retType?: ParamType;
     error?: string;
+    deprecated?: string;
 };
 
 export type ParamType = BaseType & {
@@ -33,6 +34,7 @@ export type ParamType = BaseType & {
     ref?: boolean;
     prototype?: MethodType | string;
     enum?: EnumType | string;
+    alias?: AliasType;
 };
 
 export type AliasType = BaseType & {

@@ -9,10 +9,11 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import type { BaseType } from '~/lib/manifest';
 const props = defineProps<{
   title: string;
-  elements: BaseType[];
+  elements: (BaseType & { deprecated?: string })[];
   onclick: (name?: string) => void;
   group: string;
   url: string;
@@ -45,6 +46,7 @@ const root = ref(window.location.origin);
                   <NuxtLink :to="`${root}?file=${url}#/${group}/${element.name}`">
                     {{ element.name }}
                   </NuxtLink>
+                  <Badge v-if="element.deprecated" variant="destructive" class="ml-2 text-[0.625rem]">deprecated</Badge>
                 </TableCell>
                 <TableCell class="align-top break-words">{{ element.description }}</TableCell>
               </TableRow>

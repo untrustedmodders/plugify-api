@@ -9,6 +9,8 @@ import CopyButton from "~/components/content/CopyButton.vue";
 import BackButton from "~/components/content/BackButton.vue";
 import Parameter from "~/components/content/Parameter.vue";
 import Signature from "~/components/content/Signature.vue";
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { TriangleAlert } from 'lucide-vue-next';
 
 const props = defineProps<{
   method: MethodType;
@@ -31,6 +33,11 @@ const root = ref(window.location.origin);
       </CardDescription>
     </CardHeader>
     <CardContent>
+      <Alert v-if="method.deprecated" variant="destructive" class="mb-4">
+        <TriangleAlert class="h-4 w-4" />
+        <AlertTitle>Deprecated</AlertTitle>
+        <AlertDescription>{{ method.deprecated }}</AlertDescription>
+      </Alert>
       <div class="mb-4 overflow-x-auto">
         <code class="bg-secondary p-2 md:p-[5px] whitespace-pre block w-max min-w-full rounded-md text-xs md:text-sm">
           <span>native </span>

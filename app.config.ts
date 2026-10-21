@@ -9,7 +9,7 @@ export default defineAppConfig({
     },
     theme: {
       customizable: true,
-      color: 'plugify',
+      color: 'zinc',
       radius: 0.5,
     },
     header: {
@@ -20,6 +20,24 @@ export default defineAppConfig({
         light: '/plg-logo-text.svg',
         dark: '/plg-logo-text-white.svg',
       },
+      // Same menu as plugify.net, where this site is "Hub"
+      nav: [{
+        title: 'Docs',
+        to: 'https://plugify.net/',
+        target: '_self',
+      }, {
+        title: 'Guides',
+        to: 'https://plugify.net/plugins/s2sdk/guides',
+        target: '_self',
+      }, {
+        title: 'Generator',
+        to: 'https://gen.plugify.net/',
+        target: '_self',
+      }, {
+        title: 'Hub',
+        to: '/',
+        target: '_self',
+      }],
       links: [{
         icon: 'simple-icons:discord',
         to: 'https://discord.gg/rX9TMmpang',

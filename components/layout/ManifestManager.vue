@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, Settings2 } from 'lucide-vue-next'
-import { useDocStore, formatName } from '~/lib/docStore'
-import { ref } from 'vue'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, Settings2, Pencil } from 'lucide-vue-next'
+import { useDocStore, manifestTitle, defaultManifestTitle } from '~/lib/docStore'
+import { nextTick, ref } from 'vue'
 
 const store = useDocStore()
+const { go } = useDocNavigation()
 const newManifestUrl = ref('')
+const newManifestName = ref('')
 const isAdding = ref(false)
 
 function handleAddManifest() {
   if (newManifestUrl.value.trim()) {
-    if (store.addDocUrl(newManifestUrl.value.trim())) {
-      newManifestUrl.value = ''
-      isAdding.value = false
+    if (store.addDocUrl(newManifestUrl.value.trim(), newManifestName.value)) {
+      handleResetManifest()
     }
   }
 }
@@ -19,11 +20,29 @@ function handleAddManifest() {
 function handleResetManifest() {
   isAdding.value = false;
   newManifestUrl.value = ''
+  newManifestName.value = ''
+}
+
+// Renaming a listed manifest; an empty name goes back to the default one
+const renamingUrl = ref('')
+const renameValue = ref('')
+
+function startRename(url: string) {
+  renamingUrl.value = url
+  renameValue.value = store.customNames[url] ?? ''
+  // autofocus does not apply to an input added after the page loaded; select the
+  // current name so typing replaces it
+  nextTick(() => (document.getElementById('manifest-rename') as HTMLInputElement | null)?.select())
+}
+
+function finishRename() {
+  if (renamingUrl.value) store.renameDoc(renamingUrl.value, renameValue.value)
+  renamingUrl.value = ''
 }
 
 function handleSelectManifest(url: string) {
   store.selectDoc(url)
-  navigateTo('#/')
+  go('#/')
 }
 
 function handleRefreshManifest(url: string) {
@@ -32,7 +51,7 @@ function handleRefreshManifest(url: string) {
 
 function handleRemoveManifest(url: string) {
   if (store.removeDocUrl(url)) {
-    navigateTo('#/')
+    go('#/')
   }
 }
 
@@ -70,6 +89,13 @@ function getStatusIcon(url: string) {
             id="manifest-url"
             v-model="newManifestUrl"
             placeholder="GitHub/GitLab URL or direct link to manifest.json"
+            @keydown.enter="handleAddManifest"
+          />
+          <Label for="manifest-name">Name <span class="text-muted-foreground">(optional)</span></Label>
+          <Input
+            id="manifest-name"
+            v-model="newManifestName"
+            placeholder="Taken from the manifest if left empty"
             @keydown.enter="handleAddManifest"
           />
           <div class="flex gap-2 justify-end">
@@ -122,9 +148,19 @@ function getStatusIcon(url: string) {
           </div>
 
           <!-- Manifest info -->
-          <div class="flex-1 min-w-0 cursor-pointer" @click="handleSelectManifest(url)">
+          <Input
+            v-if="renamingUrl === url"
+            id="manifest-rename"
+            v-model="renameValue"
+            class="h-8 flex-1"
+            :placeholder="`Default: ${defaultManifestTitle(url)}`"
+            @keydown.enter="finishRename"
+            @keydown.esc.stop="renamingUrl = ''"
+            @blur="finishRename"
+          />
+          <div v-else class="flex-1 min-w-0 cursor-pointer" @click="handleSelectManifest(url)">
             <div class="font-medium text-sm truncate">
-              {{ formatName(url) }}
+              {{ manifestTitle(url) }}
             </div>
             <div class="text-xs text-muted-foreground truncate">
               {{ url }}
@@ -133,6 +169,15 @@ function getStatusIcon(url: string) {
 
           <!-- Actions -->
           <div class="flex gap-1 flex-shrink-0">
+            <Button
+              @click.stop="startRename(url)"
+              size="icon"
+              variant="ghost"
+              class="h-8 w-8"
+              title="Rename"
+            >
+              <Pencil class="h-3 w-3" />
+            </Button>
             <Button 
               @click.stop="handleRefreshManifest(url)"
               size="icon"

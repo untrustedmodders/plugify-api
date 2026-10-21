@@ -13,18 +13,14 @@ import type {
     ClassType,
 } from '~/lib/manifest';
 import { definitionOf, resolveManifest } from '~/lib/manifest';
+import { defaultManifests, findDefaultManifest } from '~/lib/manifests';
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
-const DB_VERSION = 3; // Increment the version when schema changes
+const DB_VERSION = 4; // Increment the version when schema changes (4: cache keeps manifest info)
 
-// Default manifest URLs for first-time users
-const DEFAULT_MANIFEST_URLS = [
-    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-s2sdk/refs/heads/main/plugify-plugin-s2sdk.pplugin.in',
-    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-polyhook/refs/heads/main/plugify-plugin-polyhook.pplugin.in',
-    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-dyncall/refs/heads/main/plugify-plugin-dyncall.pplugin.in',
-    'https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-configs/refs/heads/main/plugify-plugin-configs.pplugin.in',
-];
+// Manifests given to first-time users, from manifests.json
+const DEFAULT_MANIFEST_URLS = defaultManifests.map(manifest => manifest.url);
 
 function ProcessItem(
     param: ParamType,
@@ -75,6 +71,17 @@ type Content = {
 
 type Document = Record<string, Content>;
 
+/** What a manifest says about itself, kept next to its groups. */
+export type ManifestInfo = {
+    name?: string;
+    description?: string;
+};
+
+// Unexpanded template placeholders such as "${S2SDK_PACKAGE}" are not real values
+function cleanText(value?: string) {
+    return value && !value.includes('${') ? value.trim() || undefined : undefined;
+}
+
 function formatUrl(url: string) {
     // Handle GitHub URLs
     if (url.includes('://github.com')) {
@@ -115,6 +122,35 @@ export function formatName(url: string) {
     return filename.split('.')[0]; // Remove file extension
 }
 
+/**
+ * The name shown for a manifest: the one the user gave it, else its manifests.json
+ * name, else the name in the manifest itself, else its file name.
+ */
+export function manifestTitle(url: string) {
+    return useDocStore().customNames[url] || defaultManifestTitle(url);
+}
+
+/** The name a manifest gets when the user has not named it. */
+export function defaultManifestTitle(url: string) {
+    return findDefaultManifest(url)?.name
+        || useDocStore().docInfo[url]?.name
+        || formatName(url);
+}
+
+/**
+ * A link to a place in a manifest that opens for anyone: manifests.json ones are found by
+ * their group, any other manifest is carried along as ?file= so it gets added on open.
+ */
+export function docLink(origin: string, url: string, path: string) {
+    const file = findDefaultManifest(url) ? '' : `?file=${encodeURIComponent(url)}`;
+    return `${origin}/${file}#/${path}`;
+}
+
+/** The description shown for a manifest: manifests.json first, then the manifest's own. */
+export function manifestDescription(url: string) {
+    return findDefaultManifest(url)?.description || useDocStore().docInfo[url]?.description;
+}
+
 export const useDocStore = defineStore('docStore', {
     state: () => ({
         db: null as any,
@@ -123,7 +159,16 @@ export const useDocStore = defineStore('docStore', {
         docUrls: [] as string[],
 
         isRefreshing: {} as Record<string, boolean>,
+
+        // Set once initDB has read the saved state, so routing can trust selectedDocUrl
+        ready: false,
+        // The group of a link being looked up in other manifests (see findManifestWithGroup)
+        resolvingGroup: '',
         isInvalid: {} as Record<string, boolean>,
+
+        docInfo: {} as Record<string, ManifestInfo>,
+        // Names the user gave to manifests, by URL
+        customNames: {} as Record<string, string>,
 
         selectedDocUrl: '',
         selectedDoc: {} as Document,
@@ -158,6 +203,7 @@ export const useDocStore = defineStore('docStore', {
             });
 
             this.docUrls = JSON.parse(localStorage.getItem('docUrls') || '[]')
+            this.customNames = JSON.parse(localStorage.getItem('docNames') || '{}')
 
             // If first-time user (no manifests), add default manifests
             if (this.docUrls.length === 0) {
@@ -173,6 +219,7 @@ export const useDocStore = defineStore('docStore', {
             this.selectedDoc = this.docs[this.selectedDocUrl];
             localStorage.setItem('selectedDocUrl', this.selectedDocUrl);
             this.loadDoc(this.selectedDocUrl);
+            this.ready = true;
         },
 
         async loadDoc(url: string) {
@@ -183,7 +230,7 @@ export const useDocStore = defineStore('docStore', {
             const isOutdated = cached && this.isCacheOutdated(cached.timestamp);
 
             if (cached && !isOutdated) {
-                this.onDataUpdated(url, cached.data);
+                this.onDataUpdated(url, cached.data, cached.info);
                 console.debug('Successfully loaded from cache');
                 return;
             }
@@ -256,10 +303,15 @@ export const useDocStore = defineStore('docStore', {
                 // A manifest is usable as long as it documents methods or classes
                 this.isInvalid[url] = manifest.methods === undefined && manifest.classes === undefined;
 
+                const info: ManifestInfo = {
+                    name: cleanText(manifest.name),
+                    description: cleanText(manifest.description),
+                };
+
                 // The manifest may have been removed while it was loading
                 if (this.docUrls.includes(url)) {
-                    await this.setCacheDoc(url, data);
-                    this.onDataUpdated(url, data);
+                    await this.setCacheDoc(url, data, info);
+                    this.onDataUpdated(url, data, info);
                     console.debug('Successfully updated data');
                 }
             } catch (error) {
@@ -274,12 +326,12 @@ export const useDocStore = defineStore('docStore', {
             }
         },
 
-        async setCacheDoc(url: string, data: Document) {
+        async setCacheDoc(url: string, data: Document, info: ManifestInfo) {
             try {
                 const timestamp = Date.now();
                 const tx = this.db.transaction('docFiles', 'readwrite');
                 const store = tx.objectStore('docFiles');
-                await store.put({ data, timestamp }, url);
+                await store.put({ data, info, timestamp }, url);
                 await tx.done;
             } catch (error) {
                 console.error('Error caching document:', error);
@@ -327,14 +379,76 @@ export const useDocStore = defineStore('docStore', {
             this.loadDoc(url);
         },
 
-        addDocUrl(url: string) {
+        /** Switches to a manifest but keeps the current route, e.g. to open a shared link. */
+        openDoc(url: string) {
+            this.selectedDocUrl = url;
+            this.selectedDoc = this.docs[url];
+            localStorage.setItem('selectedDocUrl', url);
+            this.updateSelection();
+            this.loadDoc(url);
+        },
+
+        /** Loads a manifest unless it is loaded already; resolves once it is there or failed. */
+        async ensureDoc(url: string) {
+            if (this.docs[url]) return this.docs[url];
+            const cached = await this.getCachedDoc(url);
+            if (cached && !this.isCacheOutdated(cached.timestamp)) {
+                this.docs[url] = cached.data;
+                if (cached.info) this.docInfo[url] = cached.info;
+                return this.docs[url];
+            }
+            if (!this.isRefreshing[url]) {
+                this.isRefreshing[url] = true;
+                await this.refreshDocInBackground(url);
+            }
+            while (this.isRefreshing[url]) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return this.docs[url];
+        },
+
+        /**
+         * Finds the manifest that has a group, so a link like #/Group/Item opens for someone
+         * who never had that manifest selected: the user's manifests are tried first, then
+         * the manifests.json ones they do not have (added only if they hold the group).
+         */
+        async findManifestWithGroup(group: string) {
+            this.resolvingGroup = group;
+            try {
+                const missing = DEFAULT_MANIFEST_URLS.filter(url => !this.docUrls.includes(url));
+                for (const url of [...this.docUrls, ...missing]) {
+                    const added = !this.docUrls.includes(url) && this.addDocUrl(url);
+                    const doc = await this.ensureDoc(url);
+                    if (doc?.[group]) return url;
+                    if (added) this.removeDocUrl(url);
+                }
+                return undefined;
+            } finally {
+                this.resolvingGroup = '';
+            }
+        },
+
+        /** Adds a manifest; name, when given, is shown instead of the manifest's own. */
+        addDocUrl(url: string, name?: string) {
             const href = normalizeDocUrl(url);
             if (href && !this.docUrls.includes(href)) {
                 this.docUrls.push(href);
                 localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
+                this.renameDoc(href, name);
                 return true;
             }
             return false;
+        },
+
+        /** Sets the name shown for a manifest; an empty name goes back to the default one. */
+        renameDoc(url: string, name?: string) {
+            const trimmed = name?.trim();
+            if (trimmed) {
+                this.customNames[url] = trimmed;
+            } else {
+                delete this.customNames[url];
+            }
+            localStorage.setItem('docNames', JSON.stringify(this.customNames));
         },
 
         removeDocUrl(url: string) {
@@ -342,9 +456,11 @@ export const useDocStore = defineStore('docStore', {
             localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
 
             delete this.docs[url];
+            delete this.docInfo[url];
             delete this.isInvalid[url];
             delete this.isRefreshing[url];
             this.deleteCachedDoc(url);
+            this.renameDoc(url);
 
             const current = this.selectedDocUrl === url;
             if (current) {
@@ -445,8 +561,9 @@ export const useDocStore = defineStore('docStore', {
             this.foundClass = null;
         },
 
-        onDataUpdated(url: string, data: Document) {
+        onDataUpdated(url: string, data: Document, info?: ManifestInfo) {
             this.docs[url] = data;
+            if (info) this.docInfo[url] = info;
             // Another manifest may have been selected while this one was loading
             if (url === this.selectedDocUrl) {
                 this.selectedDoc = data;

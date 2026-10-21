@@ -17,6 +17,10 @@ export function useThemes() {
       radius: defaultTheme.radius,
     }),
   });
+  // An empty or broken cookie parses to null; fall back to the defaults
+  if (!config.value || typeof config.value !== 'object') {
+    config.value = { theme: defaultTheme.color, radius: defaultTheme.radius };
+  }
 
   const theme = computed(() => config.value.theme);
   const radius = computed(() => config.value.radius);

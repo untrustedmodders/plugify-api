@@ -1,35 +1,19 @@
 <script setup lang="ts">
-import {CardContent} from '@/components/ui/card';
 import type {ParamType} from '~/lib/manifest';
-import {definitionOf} from '~/lib/manifest';
+import Signature from "~/components/content/Signature.vue";
 const props = defineProps<{
   group: string | undefined;
   param: ParamType | undefined;
 }>()
-// A prototype/enum may be written as a name; resolveManifest has replaced those
-// with the definition, so anything still a string names nothing and is skipped.
-const prototype = computed(() => definitionOf(props.param?.prototype));
-const enumerator = computed(() => definitionOf(props.param?.enum));
 </script>
 
 <template>
-  <span v-if="prototype">
-    <a :href="`#/${group}/${prototype.name}`" class="text-primary hover:underline" >
-      {{ prototype.name }}
-    </a>
-  </span>
-  <span v-else-if="enumerator">
-    <a :href="`#/${group}/${enumerator.name}`" class="text-primary hover:underline" >
-      {{ enumerator.name }}
-    </a>
-  </span>
-  <span v-else class="text-primary">
-    {{ param?.type }}
-  </span>
-  <span v-if="param?.ref" class="text-primary">&amp;</span>
-  <strong>&nbsp{{ param?.name }}</strong>
-  <span v-if="param?.alias?.name" class="text-sm text-muted-foreground">&nbsp(alias {{ param.alias.name }})</span>
-  <CardContent>
-    {{ param?.description }}
-  </CardContent>
+  <div class="flex flex-col gap-1 p-4">
+    <div class="flex flex-wrap items-baseline gap-x-2 font-mono text-sm">
+      <span v-if="param?.name" class="font-semibold text-foreground">{{ param.name }}</span>
+      <Signature :group="group" :param="param ? { ...param, name: undefined } : undefined" />
+      <span v-if="param?.alias?.name" class="text-xs text-muted-foreground">alias {{ param.alias.name }}</span>
+    </div>
+    <p v-if="param?.description" class="text-sm text-muted-foreground">{{ param.description }}</p>
+  </div>
 </template>

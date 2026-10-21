@@ -1,6 +1,7 @@
 export type ManifestType = {
     version?: string;
     name?: string;
+    description?: string;
     methods?: MethodType[];
     classes?: ClassType[];
     prototypes?: MethodType[];

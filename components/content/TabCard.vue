@@ -5,6 +5,7 @@ const shownRows = new Map<string, number>();
 </script>
 
 <script setup lang="ts">
+import { docLink } from '~/lib/docStore';
 import {
   Table,
   TableBody,
@@ -14,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { BaseType } from '~/lib/manifest';
 const props = defineProps<{
@@ -53,44 +53,37 @@ function showMore() {
 </script>
 
 <template>
-  <Card class="rounded-none md:rounded-md">
-    <CardHeader class="p-5 md:p-5">
-      <CardTitle>
-        {{ title }}
-      </CardTitle>
-    </CardHeader>
-    <CardContent class="p-2 md:p-5">
-      <div class="bg-secondary rounded-md overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead class="min-w-[120px] md:w-[40%]">Name</TableHead>
-              <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-              <TableRow
-                  v-for="element in visibleElements"
-                  :key="element.name"
-                  @click="onRowClick($event, element.name)"
-                  class="cursor-pointer"
-              >
-                <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">
-                  <a :href="`${root}?file=${url}#/${group}/${element.name}`">
-                    {{ element.name }}
-                  </a>
-                  <Badge v-if="element.deprecated" variant="destructive" class="ml-2 text-[0.625rem]">deprecated</Badge>
-                </TableCell>
-                <TableCell class="align-top break-words">{{ element.description }}</TableCell>
-              </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-      <div v-if="remaining > 0" class="flex justify-center pt-3">
-        <Button variant="outline" size="sm" @click="showMore">
-          Show more ({{ remaining }} remaining)
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
+  <div>
+    <div class="overflow-x-auto rounded-lg border bg-card">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead class="min-w-[120px] md:w-[40%]">Name</TableHead>
+            <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow
+              v-for="element in visibleElements"
+              :key="element.name"
+              @click="onRowClick($event, element.name)"
+              class="cursor-pointer"
+          >
+            <TableCell class="align-top font-mono font-medium whitespace-nowrap md:whitespace-normal">
+              <a :href="docLink(root, url, `${group}/${element.name}`)" class="underline-offset-4 hover:underline">
+                {{ element.name }}
+              </a>
+              <Badge v-if="element.deprecated" variant="destructive" class="ml-2 font-sans text-[0.625rem]">deprecated</Badge>
+            </TableCell>
+            <TableCell class="align-top break-words text-muted-foreground">{{ element.description }}</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
+    </div>
+    <div v-if="remaining > 0" class="flex justify-center pt-3">
+      <Button variant="outline" size="sm" @click="showMore">
+        Show more ({{ remaining }} remaining)
+      </Button>
+    </div>
+  </div>
 </template>

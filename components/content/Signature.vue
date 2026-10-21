@@ -13,18 +13,18 @@ const enumerator = computed(() => definitionOf(props.param?.enum));
 
 <template>
   <span v-if="prototype">
-    <a :href="`#/${group}/${prototype.name}`" class="text-primary hover:underline" >
+    <a :href="`#/${group}/${prototype.name}`" class="text-type underline decoration-dotted underline-offset-4 hover:decoration-solid" >
       {{ prototype.name }}
     </a>
   </span>
   <span v-else-if="enumerator">
-    <a :href="`#/${group}/${enumerator.name}`" class="text-primary hover:underline" >
+    <a :href="`#/${group}/${enumerator.name}`" class="text-type underline decoration-dotted underline-offset-4 hover:decoration-solid" >
       {{ enumerator.name }}
     </a>
   </span>
-  <span v-else class="text-primary">
+  <span v-else class="text-type">
     {{ param?.type }}
   </span>
-  <span v-if="param?.ref" class="text-primary">&amp;</span>
+  <span v-if="param?.ref" class="text-type">&amp;</span>
   <span>&nbsp{{ param?.name }}</span>
 </template>

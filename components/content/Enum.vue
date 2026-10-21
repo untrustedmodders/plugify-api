@@ -1,16 +1,15 @@
-<script setup lang="ts">import {
+<script setup lang="ts">
+import { docLink } from '~/lib/docStore';
+import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { EnumType } from '~/lib/manifest';
-import CopyButton from "~/components/content/CopyButton.vue";
-import BackButton from "~/components/content/BackButton.vue";
+import DocHeading from "~/components/content/DocHeading.vue";
 
 const props = defineProps<{
   enumerator: EnumType;
@@ -22,19 +21,16 @@ const root = useRequestURL().origin;
 </script>
 
 <template>
-  <Card>
-    <CardHeader class="px-7">
-      <CardTitle class="break-all">
-        <BackButton :group="group" />
-        {{ enumerator.name }}
-        <CopyButton :code="`${root}?file=${url}#/${group}/${enumerator.name}`"/>
-      </CardTitle>
-      <CardDescription>
-        {{ enumerator.description }}
-      </CardDescription>
-    </CardHeader>
-    <CardContent v-if="enumerator.values">
-      <div class="bg-secondary rounded-md overflow-x-auto">
+  <article>
+    <DocHeading
+        kind="Enum"
+        :title="enumerator.name"
+        :description="enumerator.description"
+        :link="docLink(root, url, `${group}/${enumerator.name}`)"
+    />
+    <section v-if="enumerator.values">
+      <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Values</h2>
+      <div class="overflow-x-auto rounded-lg border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
@@ -45,13 +41,13 @@ const root = useRequestURL().origin;
           </TableHeader>
           <TableBody>
             <TableRow v-for="element in enumerator.values" :key="element.name">
-              <TableCell class="text-muted-foreground hover:text-primary align-top whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
-              <TableCell class="align-top font-mono whitespace-nowrap">{{ element.value }}</TableCell>
-              <TableCell class="align-top break-words">{{ element.description }}</TableCell>
+              <TableCell class="align-top font-mono font-medium whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
+              <TableCell class="align-top font-mono whitespace-nowrap text-type">{{ element.value }}</TableCell>
+              <TableCell class="align-top break-words text-muted-foreground">{{ element.description }}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
       </div>
-    </CardContent>
-  </Card>
+    </section>
+  </article>
 </template>

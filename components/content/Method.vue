@@ -1,78 +1,64 @@
 <script setup lang="ts">
-import {
-  Card,
-  CardContent,
-  CardDescription, CardHeader, CardTitle,
-} from '@/components/ui/card';
+import { docLink } from '~/lib/docStore';
 import type { MethodType } from '~/lib/manifest';
-import CopyButton from "~/components/content/CopyButton.vue";
-import BackButton from "~/components/content/BackButton.vue";
+import DocHeading from "~/components/content/DocHeading.vue";
 import Parameter from "~/components/content/Parameter.vue";
 import Signature from "~/components/content/Signature.vue";
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { TriangleAlert } from 'lucide-vue-next';
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   method: MethodType;
   group: string;
   url: string;
-}>()
+  kind?: string;
+}>(), { kind: 'Method' })
 // useRequestURL works on the server too, unlike window.location
 const root = useRequestURL().origin;
 </script>
 
 <template>
-  <Card>
-    <CardHeader>
-      <CardTitle class="break-all">
-        <BackButton :group="group" />
-        {{ method.name }}
-        <CopyButton :code="`${root}?file=${url}#/${group}/${method.name}`"/>
-      </CardTitle>
-      <CardDescription>
-        {{ method.description }}
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
-      <Alert v-if="method.deprecated" variant="destructive" class="mb-4">
-        <TriangleAlert class="h-4 w-4" />
-        <AlertTitle>Deprecated</AlertTitle>
-        <AlertDescription>{{ method.deprecated }}</AlertDescription>
-      </Alert>
-      <div class="mb-4 overflow-x-auto">
-        <code class="bg-secondary p-2 md:p-[5px] whitespace-pre block w-max min-w-full rounded-md text-xs md:text-sm">
-          <span>native </span>
-          <Signature :group="group" :param="method.retType"/>
-          <span>{{ method.name }}(</span>
-          <span v-if="method.paramTypes && method.paramTypes.length > 0">
-            <span v-for="(param, index) in method.paramTypes" :key="index">
-              <Signature :group="group" :param="param"/>
-              <span v-if="method.paramTypes.length - 1 !== index">,&nbsp</span>
-            </span>
+  <article>
+    <DocHeading
+        :kind="kind"
+        :title="method.name"
+        :description="method.description"
+        :link="docLink(root, url, `${group}/${method.name}`)"
+    />
+    <Alert v-if="method.deprecated" variant="destructive" class="mt-6">
+      <TriangleAlert class="h-4 w-4" />
+      <AlertTitle>Deprecated</AlertTitle>
+      <AlertDescription>{{ method.deprecated }}</AlertDescription>
+    </Alert>
+    <div class="mt-6 overflow-x-auto rounded-lg border bg-card">
+      <code class="block w-max min-w-full whitespace-pre p-4 font-mono text-sm">
+        <span class="text-muted-foreground">native </span>
+        <Signature :group="group" :param="method.retType"/>
+        <span class="font-semibold">{{ method.name }}</span><span>(</span>
+        <span v-if="method.paramTypes && method.paramTypes.length > 0">
+          <span v-for="(param, index) in method.paramTypes" :key="index">
+            <Signature :group="group" :param="param"/>
+            <span v-if="method.paramTypes.length - 1 !== index">,&nbsp</span>
           </span>
-          <span>)</span>
-        </code>
+        </span>
+        <span>)</span>
+      </code>
+    </div>
+    <section v-if="method.paramTypes && method.paramTypes.length > 0">
+      <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Parameters</h2>
+      <div class="divide-y rounded-lg border bg-card">
+        <Parameter v-for="(param, index) in method.paramTypes" :key="index" :group="group" :param="param"/>
       </div>
-      <div>
-        <section v-if="method.paramTypes && method.paramTypes.length > 0">
-          <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Parameters</h4>
-          <ul>
-            <li v-for="(param, index) in method.paramTypes" :key="index">
-              <Parameter :group="group" :param="param"/>
-            </li>
-          </ul>
-        </section>
-        <section v-if="method.retType && method.retType.type !== 'void'">
-          <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Return</h4>
-          <Parameter :group="group" :param="method.retType"/>
-        </section>
-        <section v-if="method.error">
-          <h4 class="text-lg font-semibold leading-none tracking-tight pb-3">Error</h4>
-          <CardContent>
-            {{ method.error }}
-          </CardContent>
-        </section>
+    </section>
+    <section v-if="method.retType && method.retType.type !== 'void'">
+      <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Return</h2>
+      <div class="rounded-lg border bg-card">
+        <Parameter :group="group" :param="method.retType"/>
       </div>
-    </CardContent>
-  </Card>
+    </section>
+    <section v-if="method.error">
+      <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Error</h2>
+      <p class="text-muted-foreground">{{ method.error }}</p>
+    </section>
+  </article>
 </template>

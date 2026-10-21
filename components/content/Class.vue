@@ -1,12 +1,5 @@
 <script setup lang="ts">
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import {
   Table,
   TableBody,
   TableCell,
@@ -16,9 +9,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import type { ClassType } from '~/lib/manifest';
-import CopyButton from "~/components/content/CopyButton.vue";
-import BackButton from "~/components/content/BackButton.vue";
-import { useDocStore } from '~/lib/docStore';
+import DocHeading from "~/components/content/DocHeading.vue";
+import { useDocStore, docLink } from '~/lib/docStore';
 
 const props = defineProps<{
   klass: ClassType;
@@ -38,39 +30,32 @@ const groupMethods = computed(() => {
 </script>
 
 <template>
-  <Card>
-    <CardHeader class="px-7">
-      <CardTitle class="break-all">
-        <BackButton :group="group" />
-        {{ klass.name }}
-        <CopyButton :code="`${root}?file=${url}#/${group}/${klass.name}`"/>
-      </CardTitle>
-      <CardDescription>
-        {{ klass.description }}
-      </CardDescription>
-    </CardHeader>
-    <CardContent>
+  <article>
+    <DocHeading
+        kind="Class"
+        :title="klass.name"
+        :description="klass.description"
+        :link="docLink(root, url, `${group}/${klass.name}`)"
+    />
       <!-- Handle Type Information -->
-      <div v-if="klass.handleType || klass.invalidValue" class="mb-6">
-        <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Handle Information</h4>
-        <div class="bg-secondary p-4 rounded-md">
-          <div class="flex gap-4">
-            <div v-if="klass.handleType">
-              <span class="text-muted-foreground">Handle Type:</span>
-              <code class="ml-2 text-primary">{{ klass.handleType }}</code>
-            </div>
-            <div v-if="klass.invalidValue">
-              <span class="text-muted-foreground">Invalid Value:</span>
-              <code class="ml-2 text-primary">{{ klass.invalidValue }}</code>
-            </div>
+      <div v-if="klass.handleType || klass.invalidValue">
+        <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Handle</h2>
+        <dl class="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+          <div v-if="klass.handleType" class="flex gap-2">
+            <dt class="text-muted-foreground">Type</dt>
+            <dd class="font-mono text-type">{{ klass.handleType }}</dd>
           </div>
-        </div>
+          <div v-if="klass.invalidValue" class="flex gap-2">
+            <dt class="text-muted-foreground">Invalid value</dt>
+            <dd class="font-mono text-type">{{ klass.invalidValue }}</dd>
+          </div>
+        </dl>
       </div>
 
       <!-- Constructors -->
-      <div v-if="klass.constructors && klass.constructors.length > 0" class="mb-6">
-        <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Constructors</h4>
-        <div class="bg-secondary rounded-md overflow-x-auto">
+      <div v-if="klass.constructors && klass.constructors.length > 0" >
+        <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Constructors</h2>
+        <div class="overflow-x-auto rounded-lg border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -81,7 +66,7 @@ const groupMethods = computed(() => {
             <TableBody>
               <TableRow v-for="constructor in klass.constructors" :key="constructor">
                 <TableCell class="align-top whitespace-nowrap md:whitespace-normal">
-                  <a :href="`#/${group}/${constructor}`" class="text-primary hover:underline font-mono">
+                  <a :href="`#/${group}/${constructor}`" class="font-mono font-medium underline-offset-4 hover:underline">
                     {{ constructor }}
                   </a>
                 </TableCell>
@@ -95,9 +80,9 @@ const groupMethods = computed(() => {
       </div>
 
       <!-- Destructor -->
-      <div v-if="klass.destructor" class="mb-6">
-        <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Destructor</h4>
-        <div class="bg-secondary rounded-md overflow-x-auto">
+      <div v-if="klass.destructor" >
+        <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Destructor</h2>
+        <div class="overflow-x-auto rounded-lg border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -108,7 +93,7 @@ const groupMethods = computed(() => {
             <TableBody>
               <TableRow>
                 <TableCell class="align-top whitespace-nowrap md:whitespace-normal">
-                  <a :href="`#/${group}/${klass.destructor}`" class="text-primary hover:underline font-mono">
+                  <a :href="`#/${group}/${klass.destructor}`" class="font-mono font-medium underline-offset-4 hover:underline">
                     {{ klass.destructor }}
                   </a>
                 </TableCell>
@@ -122,9 +107,9 @@ const groupMethods = computed(() => {
       </div>
 
       <!-- Bindings/Methods -->
-      <div v-if="klass.bindings && klass.bindings.length > 0" class="mb-6">
-        <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Bindings</h4>
-        <div class="bg-secondary rounded-md overflow-x-auto">
+      <div v-if="klass.bindings && klass.bindings.length > 0" >
+        <h2 class="mb-4 mt-10 scroll-m-20 border-b pb-2 text-xl font-semibold tracking-tight">Bindings</h2>
+        <div class="overflow-x-auto rounded-lg border bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -135,14 +120,14 @@ const groupMethods = computed(() => {
             </TableHeader>
             <TableBody>
               <TableRow v-for="binding in klass.bindings" :key="binding.name">
-                <TableCell class="text-muted-foreground hover:text-primary align-top font-semibold whitespace-nowrap md:whitespace-normal">
+                <TableCell class="align-top font-mono font-medium whitespace-nowrap md:whitespace-normal">
                   {{ binding.name }}
                 </TableCell>
                 <TableCell class="align-top whitespace-nowrap md:whitespace-normal">
                   <a
                     v-if="binding.method"
                     :href="`#/${group}/${binding.method}`"
-                    class="text-primary hover:underline font-mono"
+                    class="font-mono font-medium underline-offset-4 hover:underline"
                   >
                     {{ binding.method }}
                   </a>
@@ -187,6 +172,5 @@ const groupMethods = computed(() => {
           </Table>
         </div>
       </div>
-    </CardContent>
-  </Card>
+  </article>
 </template>

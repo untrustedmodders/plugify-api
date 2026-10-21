@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, ChevronDown, Settings2, FileText } from 'lucide-vue-next'
-import { useDocStore, formatName } from '~/lib/docStore'
+import { useDocStore, manifestTitle } from '~/lib/docStore'
 import { ref } from 'vue'
 import ManifestManager from '~/components/layout/ManifestManager.vue'
 
 const store = useDocStore()
+const { openApi } = useDocNavigation()
 const open = ref(false)
 
 function handleSelectManifest(url: string) {
-  store.selectDoc(url)
   open.value = false
-  navigateTo('#/')
+  openApi(url)
 }
 
 function getStatusIcon(url: string) {
@@ -21,7 +21,7 @@ function getStatusIcon(url: string) {
 }
 
 const currentManifestName = computed(() => {
-  return store.selectedDocUrl ? formatName(store.selectedDocUrl) : 'No manifest selected'
+  return store.selectedDocUrl ? manifestTitle(store.selectedDocUrl) : 'No manifest selected'
 })
 </script>
 
@@ -92,7 +92,7 @@ const currentManifestName = computed(() => {
           <!-- Manifest info -->
           <div class="flex-1 min-w-0">
             <div class="font-medium text-sm truncate">
-              {{ formatName(url) }}
+              {{ manifestTitle(url) }}
             </div>
             <div class="text-xs text-muted-foreground truncate">
               {{ url }}

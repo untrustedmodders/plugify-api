@@ -14,8 +14,7 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 import { useMagicKeys, useDebounceFn } from '@vueuse/core';
-import { useRouter } from "#app";
-import { useDocStore, formatName } from '~/lib/docStore';
+import { useDocStore, manifestTitle } from '~/lib/docStore';
 import type { Item } from '~/lib/docStore';
 import { ref } from "vue";
 import InputError from '~/components/content/InputError.vue';
@@ -25,7 +24,7 @@ const { darkModeToggle } = useConfig().value.header;
 const open = defineModel<boolean>('open');
 const { placeholderDetailed } = useConfig().value.search;
 
-const router = useRouter();
+const { go } = useDocNavigation();
 const store = useDocStore();
 
 const { Meta_K, Ctrl_K } = useMagicKeys({
@@ -106,13 +105,15 @@ async function handleSelect(item: Item) {
     store.selectDoc(item.url);
   }
   open.value = false;
-  await router.push(item.link);
+  await go(item.link);
 }
 </script>
 
 <template>
   <Dialog v-model:open="open">
-    <DialogContent class="p-0">
+    <!-- Closing must not hand focus back to the search button: after Esc the browser would
+         show its keyboard focus ring there, as if the button were still selected -->
+    <DialogContent class="p-0" @close-auto-focus.prevent>
       <VisuallyHidden as-child>
         <DialogTitle />
       </VisuallyHidden>
@@ -144,7 +145,7 @@ async function handleSelect(item: Item) {
               <CircleCheck v-else-if="store.docs[item.url]" class="mr-2 size-4" />
               <CircleHelp v-else class="mr-2 size-4" />
 
-              <span>{{ formatName(item.url) }}</span>
+              <span>{{ manifestTitle(item.url) }}</span>
               <template v-if="item.name.length > 0">
                 <div class="mr-2 size-4 shrink-0" />
                 <FileText v-if="item.icon == 1" class="mr-2 size-4 shrink-0 self-center" />

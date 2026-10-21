@@ -1,0 +1,26 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-s2sdk/refs/heads/main/plugify-plugin-s2sdk.pplugin.in",
+    "name": "Source 2 SDK",
+    "description": "Provides functionality for other plugins from the Source 2 engine.",
+    "icon": "lucide:gamepad-2"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-polyhook/refs/heads/main/plugify-plugin-polyhook.pplugin.in",
+    "name": "PolyHook",
+    "description": "The x86/x64 API hooking library for Windows and Linux.",
+    "icon": "lucide:anchor"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-dyncall/refs/heads/main/plugify-plugin-dyncall.pplugin.in",
+    "name": "DynCall",
+    "description": "Encapsulates architecture-, OS- and compiler-specific function call semantics.",
+    "icon": "lucide:phone-call"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/untrustedmodders/plugify-plugin-configs/refs/heads/main/plugify-plugin-configs.pplugin.in",
+    "name": "Configs",
+    "description": "A system to read and write configuration files.",
+    "icon": "lucide:file-cog"
+  }
+]

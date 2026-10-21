@@ -6,36 +6,27 @@ html.dark {
     color-scheme: dark;
 }
 
+/* Light mode follows sourcemod.net: a pale blue page, white boxes with light grey borders */
 .theme-zinc {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
-
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-
-    --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-
+    --background: 216 100% 99%;
+    --foreground: 0 0% 20%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-
-    --primary: 240 5.9% 10%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-
+    --card-foreground: 0 0% 20%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 20%;
+    --primary: 211 35% 37%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 0 0% 47%;
+    --accent: 210 33% 95%;
+    --accent-foreground: 0 0% 20%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
-
-    --ring: 240 5.9% 10%;
-
+    --border: 0 0% 89%;
+    --input: 0 0% 80%;
+    --ring: 208 56% 53%;
     --radius: 0.5rem;
 }
 
@@ -52,8 +43,8 @@ html.dark {
     --card: 240 10% 3.9%;
     --card-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 240 4% 20%;
+    --input: 240 5% 26%; /* lighter than the border so outlined buttons and fields stand out */
 
     --primary: 0 0% 98%;
     --primary-foreground: 240 5.9% 10%;
@@ -838,6 +829,7 @@ html.dark {
     --ring: 240 4.9% 83.9%;
 }
 
+/* Plugify: the original colours of this site, green on a sourcemod.net-like light theme */
 .theme-plugify {
     --background: 0 0% 100%;
     --foreground: 240 10% 3.9%;
@@ -878,14 +870,14 @@ html.dark {
     --muted: 216 6% 13%;
     --muted-foreground: 214 16% 64%;
 
-    --popover: 240 10% 3.9%;
+    --popover: 216 6% 15%; /* same as --card: dialogs and menus look like the boxes */
     --popover-foreground: 0 0% 98%;
 
     --card: 216 6% 15%;
     --card-foreground: 214 16% 64%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
+    --border: 240 4% 20%;
+    --input: 240 5% 26%; /* lighter than the border so outlined buttons and fields stand out */
 
     --primary: 155 61% 44%;
     --primary-foreground: 155 61% 10%;

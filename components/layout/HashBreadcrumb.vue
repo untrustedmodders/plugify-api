@@ -9,14 +9,16 @@ import {
   Breadcrumb
 } from '@/components/ui/breadcrumb'; // Adjust path as needed
 
-const props = defineProps<{ fragments: string[] }>();
+// root: the manifest name, linking back to the home page
+const props = defineProps<{ fragments: string[]; root?: string }>();
 
 const breadcrumbs = computed(() => {
-  return (props.fragments || []).map((fragment, index) => ({
+  const crumbs = (props.fragments || []).map((fragment, index) => ({
     name: fragment,
     path: `#/${props.fragments.slice(0, index + 1).join("/")}`,
     isLast: index === props.fragments.length - 1,
   }));
+  return props.root ? [{ name: props.root, path: '#/', isLast: crumbs.length === 0 }, ...crumbs] : crumbs;
 });
 </script>
 

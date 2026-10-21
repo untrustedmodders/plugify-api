@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp } from 'lucide-vue-next'
 import { onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from '#app';
-import { useDocStore, formatName } from '~/lib/docStore'
+import { useDocStore, manifestTitle } from '~/lib/docStore'
 
 // Scroll position tracking for hash-based routing
 const scrollPositions = new Map<string, number>()
@@ -11,40 +10,17 @@ const scrollPositions = new Map<string, number>()
 const activeTabPerGroup = new Map<string, string>()
 const currentTab = ref('Methods')
 
-// Import components from the custom library
-import {
-  Badge
-} from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarInput,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarRail,
-  SidebarTrigger,
-} from '@/components/ui/sidebar'
 import {
   Tabs,
   TabsContent,
-  TabsList,
-  TabsTrigger,
 } from '@/components/ui/tabs'
+import { TooltipProvider } from 'radix-vue'
 
 import Spinner from '~/components/layout/Spinner.vue';
-import SearchButton from '~/components/layout/SearchButton.vue';
 import HashBreadcrumb from '~/components/layout/HashBreadcrumb.vue';
-import Intro from '~/components/layout/Intro.vue';
-import Footer from '~/components/layout/Footer.vue';
-import Logo from '~/components/layout/Logo.vue';
-import ManifestSwitcher from '~/components/layout/ManifestSwitcher.vue';
+import Home from '~/components/layout/Home.vue';
+import DocsLayout from '~/components/layout/DocsLayout.vue';
 
-const config = useConfig();
 const route = useRoute();
 const router = useRouter();
 const store = useDocStore();
@@ -83,19 +59,44 @@ const countedGroups = computed(() => {
   ];
   return data;
 });
+const singular: Record<string, string> = { Methods: 'method', Delegates: 'delegate', Enumerators: 'enumerator', Classes: 'class' };
+// The store's field for each tab
+const tabKeys = { Methods: 'methods', Delegates: 'delegates', Enumerators: 'enumerators', Classes: 'classes' } as const;
 const filteredGroups = computed(() => store.selectedDoc?.[store.selectedGroup]);
 const isRefreshing = computed(() => store.isRefreshing[store.selectedDocUrl]);
+
+// A link to a group the selected manifest does not have (or any group, when nothing is
+// selected yet, e.g. on a first visit) is looked up in the other manifests
+watch(() => [store.ready, store.selectedGroup, store.selectedDocUrl, store.docs[store.selectedDocUrl]] as const,
+  async ([ready, group, url, doc]) => {
+    if (!ready || !group || store.resolvingGroup) return
+    if (url && !doc && !store.isInvalid[url]) return // the selected manifest is still loading
+    if (doc?.[group]) return
+    const found = await store.findManifestWithGroup(group)
+    if (found && store.selectedGroup === group) store.openDoc(found)
+  })
+
+// Navigation keeps ?file= (see useDocNavigation); this updates it when the manifest changes
+const { go, queryFor } = useDocNavigation()
+watch(() => [store.ready, store.selectedDocUrl] as const, ([ready]) => {
+  if (!ready) return
+  const current = router.currentRoute.value
+  const query = queryFor()
+  if (current.query.file !== query.file) router.replace({ query, hash: current.hash })
+})
 
 // router.currentRoute rather than useRoute(): Nuxt's route lags behind hash navigation
 watch(() => router.currentRoute.value.hash, (newHash) => {
   store.onRouteChange(newHash);
 });
 
-// Watch for navigation back to group view and restore scroll
-watch(() => store.selectedItem, (newItem, oldItem) => {
-  // If navigating from detail view (oldItem exists) to group view (newItem is null)
-  if (oldItem && !newItem && store.selectedGroup) {
+// Coming back from a detail page to its group restores the list's scroll position;
+// any other move (home to a group, group to group, list to a detail page) starts at the top
+watch(() => [store.selectedGroup, store.selectedItem] as const, ([group, item], [oldGroup, oldItem]) => {
+  if (oldItem && !item && group && group === oldGroup) {
     restoreScrollPosition()
+  } else {
+    nextTick(() => window.scrollTo({ top: 0, behavior: 'instant' }))
   }
 });
 
@@ -144,8 +145,7 @@ watch(() => [currentTab.value, store.selectedGroup, store.selectedItem, store.se
   if (!group || item) return
   const value = tab.toLowerCase()
   if (urlTab !== value) {
-    const current = router.currentRoute.value
-    router.replace({ query: current.query, hash: `#/${group}?tab=${value}` })
+    router.replace({ query: queryFor(), hash: `#/${group}?tab=${value}` })
   }
 });
 
@@ -173,143 +173,58 @@ function restoreScrollPosition() {
 function selectRow(name?: string) {
   // Save scroll position before navigating to detail view
   saveScrollPosition()
-  router.push(`#/${store.selectedGroup}/${name}`);
+  go(`#/${store.selectedGroup}/${name}`);
 }
 function selectGroup(name?: string) {
   // Save scroll position before navigating to another group
   saveScrollPosition()
-  router.push(`#/${name}`);
+  go(`#/${name}`);
 }
 
 </script>
 
 <template>
-  <SidebarProvider>
-    <Sidebar class="bg-card">
-      <SidebarHeader>
-        <Logo/>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel v-if="store.selectedDocUrl.length > 0">
-            API Groups
-          </SidebarGroupLabel>
-          <SidebarGroupContent>
-            <template v-if="isRefreshing">
-              <Spinner />
-            </template>
-            <SidebarMenu>
-              <SidebarMenuItem v-for="(data, group) in store.selectedDoc" :key="group">
-                <SidebarMenuButton
-                    class="text-muted-foreground hover:text-primary"
-                    v-bind:class="{ 'text-primary bg-muted' : group === store.selectedGroup }"
-                    v-if="Object.values(data.methods).length + Object.values(data.classes).length > 0"
-                    @click="selectGroup(group)"
-                >
-                  {{ group }}
-                  <Badge class="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                    {{ Object.values(data.methods).length + Object.values(data.enumerators).length + Object.values(data.delegates).length + Object.values(data.classes).length }}
-                  </Badge>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <!-- Footer content can be added here if needed -->
-      </SidebarFooter>
-      <SidebarRail />
-    </Sidebar>
-    <SidebarInset class="w-full overflow-x-hidden">
-      <header class="flex h-16 shrink-0 items-center gap-2 border-b px-2 md:px-4">
-        <SidebarTrigger class="-ml-1" />
-        <Separator orientation="vertical" class="mr-2 h-4 max-md:hidden" />
-        <HashBreadcrumb :fragments="store.fragments" class="flex max-md:hidden"/>
-        <div class="flex flex-1 justify-end gap-1 md:gap-3">
-          <ManifestSwitcher />
-          <SearchButton v-if="!config.search.inAside && config.search.style === 'input'" />
-          <div class="flex">
-            <SearchButton v-if="!config.search.inAside && config.search.style === 'button'" />
-            <ThemePopover v-if="config.theme.customizable" />
-            <DarkModeToggle v-if="config.header.darkModeToggle" />
-            <NuxtLink
-                v-for="(link, i) in config.header.links"
-                :key="i"
-                :to="link?.to"
-                :target="link?.target"
-                :class="{ 'max-sm:hidden': i >= 2 }"
-            >
-              <Button variant="ghost" size="icon" class="flex gap-2">
-                <Icon v-if="link?.icon" :name="link.icon" :size="18" />
-              </Button>
-            </NuxtLink>
-          </div>
-        </div>
-      </header>
-      <div class="flex flex-1 flex-col p-2 md:p-4 overflow-x-hidden w-full">
-        <template v-if="isRefreshing">
-          <Spinner />
-        </template>
-        <template v-else-if="store.foundMethod || store.foundDelegate || store.foundEnum || store.foundClass">
-          <!-- Kinds share one namespace per group, so show every definition with this name -->
-          <div class="flex flex-col gap-4">
-            <Method v-if="store.foundMethod" class="w-full max-w-full" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-            <Method v-if="store.foundDelegate" class="w-full max-w-full" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-            <Enum v-if="store.foundEnum" class="w-full max-w-full" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-            <Class v-if="store.foundClass" class="w-full max-w-full" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-          </div>
-        </template>
-        <template v-else-if="store.selectedDoc && filteredGroups">
-          <Tabs v-model="currentTab" :key="store.selectedGroup">
-            <TabsPanel :tabs="countedGroups" />
-            <TabsContent value="Methods">
-              <TabCard
-                  title="Methods"
-                  :elements="Object.values(filteredGroups.methods)"
-                  :onclick="selectRow"
-                  :group="store.selectedGroup"
-                  :url="store.selectedDocUrl"
-                  class="w-full max-w-full"
-              />
-            </TabsContent>
-            <TabsContent value="Delegates">
-              <TabCard
-                  title="Delegates"
-                  :elements="Object.values(filteredGroups.delegates)"
-                  :onclick="selectRow"
-                  :group="store.selectedGroup"
-                  :url="store.selectedDocUrl"
-                  class="w-full max-w-full"
-              />
-            </TabsContent>
-            <TabsContent value="Enumerators">
-              <TabCard
-                  title="Enumerators"
-                  :elements="Object.values(filteredGroups.enumerators)"
-                  :onclick="selectRow"
-                  :group="store.selectedGroup"
-                  :url="store.selectedDocUrl"
-                  class="w-full max-w-full"
-              />
-            </TabsContent>
-            <TabsContent value="Classes">
-              <TabCard
-                  title="Classes"
-                  :elements="Object.values(filteredGroups.classes)"
-                  :onclick="selectRow"
-                  :group="store.selectedGroup"
-                  :url="store.selectedDocUrl"
-                  class="w-full max-w-full"
-              />
-            </TabsContent>
-          </Tabs>
-        </template>
-        <template v-else>
-          <Intro />
-        </template>
+  <!-- Tooltips (e.g. copy buttons) need a provider in every layout, not only the sidebar one -->
+  <TooltipProvider :delay-duration="0">
+  <DocsLayout @select-group="selectGroup">
+    <!-- Until the saved state and the linked manifest are in, show a spinner rather than
+         flashing the home page before the linked API -->
+    <template v-if="!store.ready || (store.selectedGroup && (isRefreshing || store.resolvingGroup
+        || (store.selectedDocUrl && !store.docs[store.selectedDocUrl] && !store.isInvalid[store.selectedDocUrl])))">
+      <Spinner />
+    </template>
+    <template v-else-if="store.foundMethod || store.foundDelegate || store.foundEnum || store.foundClass">
+      <HashBreadcrumb :fragments="store.fragments" :root="manifestTitle(store.selectedDocUrl)" class="mb-4" />
+      <!-- Kinds share one namespace per group, so show every definition with this name -->
+      <div class="flex flex-col gap-12">
+        <Method v-if="store.foundMethod" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+        <Method v-if="store.foundDelegate" kind="Delegate" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+        <Enum v-if="store.foundEnum" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+        <Class v-if="store.foundClass" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
       </div>
-      <Footer/>
-    </SidebarInset>
-  </SidebarProvider>
+    </template>
+    <template v-else-if="store.selectedGroup && filteredGroups">
+      <HashBreadcrumb :fragments="store.fragments" :root="manifestTitle(store.selectedDocUrl)" class="mb-4" />
+      <h1 class="scroll-m-20 text-3xl font-bold tracking-tight md:text-4xl">{{ store.selectedGroup }}</h1>
+      <p class="mb-6 mt-2 text-lg text-muted-foreground">
+        {{ countedGroups.filter(tab => tab.count > 0).map(tab => `${tab.count} ${tab.count === 1 ? singular[tab.name] : tab.name.toLowerCase()}`).join(' · ') }}
+      </p>
+      <Tabs v-model="currentTab" :key="store.selectedGroup">
+        <TabsPanel :tabs="countedGroups" />
+        <TabsContent v-for="tab in countedGroups" :key="tab.name" :value="tab.name">
+          <TabCard
+              :title="tab.name"
+              :elements="Object.values(filteredGroups[tabKeys[tab.name]])"
+              :onclick="selectRow"
+              :group="store.selectedGroup"
+              :url="store.selectedDocUrl"
+          />
+        </TabsContent>
+      </Tabs>
+    </template>
+    <template v-else>
+      <Home @select-group="selectGroup" />
+    </template>
+  </DocsLayout>
+  </TooltipProvider>
 </template>

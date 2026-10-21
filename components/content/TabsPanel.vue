@@ -7,13 +7,13 @@ const props = defineProps<{ tabs: { name: string, count: number }[] }>();
 </script>
 
 <template>
-  <div class="flex flex-wrap items-center p-0 md:p-0">
-    <TabsList class="flex flex-col md:flex-row w-[100%] md:w-auto rounded-none md:rounded-md">
+  <div class="mb-4 overflow-x-auto">
+    <TabsList>
       <template v-for="(tab, index) in tabs" :key="index">
-        <TabsTrigger v-if="tab.count > 0" :value="tab.name" class="w-full md:w-auto">
+        <TabsTrigger v-if="tab.count > 0" :value="tab.name">
           <div class="flex justify-between">
             {{ tab.name }}
-            <Badge class="ml-2 flex h-5 w-5 shrink-0 items-center justify-center rounded-full !text-[0.625rem]">
+            <Badge variant="secondary" class="ml-2 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 !text-[0.625rem] tabular-nums">
               {{ tab.count }}
             </Badge>
           </div>

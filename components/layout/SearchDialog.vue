@@ -54,6 +54,14 @@ watch(open, (isOpen) => {
 const searchResult = ref<Item[]>([]);
 const searchLoading = ref(false);
 
+// Rendering hundreds of combobox items freezes the page for seconds on short queries,
+// so only the first matches are shown and the rest are counted
+const MAX_VISIBLE_RESULTS = 50;
+const visibleResults = computed(() => searchResult.value.slice(0, MAX_VISIBLE_RESULTS));
+
+// Results are already filtered by the store; skip the combobox's own filtering
+const keepAll = (list: any) => list;
+
 const performSearch = useDebounceFn(async (searchTerm: string) => {
   if (!searchTerm) {
     searchResult.value = [];
@@ -104,7 +112,7 @@ async function handleEnter() {
 }
 
 function handleNavigate(delta: -1 | 1) {
-  if (activeSelect.value + delta >= 0 && activeSelect.value + delta < searchResult.value.length)
+  if (activeSelect.value + delta >= 0 && activeSelect.value + delta < visibleResults.value.length)
     activeSelect.value += delta;
 }
 
@@ -126,7 +134,7 @@ async function handleClick(item: Item) {
       <VisuallyHidden as-child>
         <DialogDescription aria-describedby="undefined" />
       </VisuallyHidden>
-      <Command v-model:search-term="input" class="h-svh sm:h-[350px]">
+      <Command v-model:search-term="input" :filter-function="keepAll" class="h-svh sm:h-[350px]">
         <CommandInput
             :loading="searchLoading"
             :placeholder="placeholderDetailed"
@@ -142,7 +150,7 @@ async function handleClick(item: Item) {
 
           <div v-else-if="searchResult?.length" class="p-1.5">
             <CommandItem
-                v-for="(item, i) in searchResult"
+                v-for="(item, i) in visibleResults"
                 :value="item"
                 :key="`${item.url}-${item.name}-${i}`"
                 v-memo="[item, i === activeSelect, store.isRefreshing[item.url], store.isInvalid[item.url], store.docs[item.url]]"
@@ -167,10 +175,7 @@ async function handleClick(item: Item) {
                     {{ subtitle }}
                     <ChevronRight class="mx-0.5 self-center text-muted-foreground" />
                   </span>-->
-                <span class="shrink-0 self-center">
-                  {{ item.name }}
-                </span>
-                <span class="ml-2 self-center truncate text-xs text-muted-foreground">
+                <span class="self-center truncate">
                   <span
                       v-for="(part, j) in getHighlightedParts(item.name)"
                       :key="j"
@@ -179,6 +184,9 @@ async function handleClick(item: Item) {
                 </span>
               </template>
             </CommandItem>
+            <p v-if="searchResult.length > visibleResults.length" class="py-2 text-center text-xs text-muted-foreground">
+              Showing {{ visibleResults.length }} of {{ searchResult.length }} results, refine the search to see more
+            </p>
           </div>
 
           <div v-else class="pt-4 text-center text-muted-foreground">

@@ -365,33 +365,36 @@ export const useDocStore = defineStore('docStore', {
             return new Promise<Item[]>((resolve) => {
                 setTimeout(() => {
                     let found: Item[] = [];
+                    // Case-insensitive, matching how the dialog highlights results
+                    const needle = value.toLowerCase();
+                    const matches = (text: string) => text.toLowerCase().includes(needle);
                     for (const url of this.docUrls) {
-                        if (url.includes(value)) {
+                        if (matches(url)) {
                             found.push({ url: url, name: '', link: '#/', icon: 0 });
                         }
                         const data = this.docs[url];
                         if (data) {
                             for (const [group, content] of Object.entries(data)) {
-                                if (group.includes(value)) {
+                                if (matches(group)) {
                                     found.push({ url: url, name: group, link: `#/${group}`, icon: 1 });
                                 }
                                 for (const name of Object.keys(content.methods)) {
-                                    if (name.includes(value)) {
+                                    if (matches(name)) {
                                         found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 2 });
                                     }
                                 }
                                 for (const name of Object.keys(content.delegates)) {
-                                    if (name.includes(value)) {
+                                    if (matches(name)) {
                                         found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 3 });
                                     }
                                 }
                                 for (const name of Object.keys(content.enumerators)) {
-                                    if (name.includes(value)) {
+                                    if (matches(name)) {
                                         found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 4 });
                                     }
                                 }
                                 for (const name of Object.keys(content.classes)) {
-                                    if (name.includes(value)) {
+                                    if (matches(name)) {
                                         found.push({ url: url, name: name, link: `#/${group}/${name}`, icon: 5 });
                                     }
                                 }

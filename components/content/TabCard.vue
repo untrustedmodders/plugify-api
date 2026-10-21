@@ -29,7 +29,7 @@ const root = useRequestURL().origin;
 
 // Rows are rendered in pages: a group with thousands of entries would otherwise
 // block the page for seconds, like the search dialog did
-const PAGE_SIZE = 200;
+const PAGE_SIZE = 50;
 const tableKey = computed(() => `${props.url}|${props.group}|${props.title}`);
 const limit = ref(shownRows.get(tableKey.value) ?? PAGE_SIZE);
 watch(tableKey, (key) => {

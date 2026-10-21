@@ -13,7 +13,7 @@ const props = defineProps<{ tabs: { name: string, count: number }[] }>();
         <TabsTrigger v-if="tab.count > 0" :value="tab.name">
           <div class="flex justify-between">
             {{ tab.name }}
-            <Badge variant="secondary" class="ml-2 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 !text-[0.625rem] tabular-nums">
+            <Badge class="ml-2 flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full px-1.5 !text-[0.625rem] tabular-nums">
               {{ tab.count }}
             </Badge>
           </div>

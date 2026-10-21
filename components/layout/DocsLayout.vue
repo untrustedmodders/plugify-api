@@ -18,11 +18,11 @@ const store = useDocStore()
     </SiteHeader>
     <div class="flex flex-1">
       <!-- The home page is a full-width landing, like the plugify.net front page -->
-      <aside
-          v-if="store.selectedGroup"
-          class="sticky top-14 hidden h-[calc(100svh-3.5rem)] w-64 shrink-0 overflow-y-auto border-r px-3 py-6 md:block"
-      >
-        <GroupNav @select="emit('selectGroup', $event)" />
+      <!-- The column carries the border down the whole page; only its content sticks -->
+      <aside v-if="store.selectedGroup" class="hidden w-64 shrink-0 border-r md:block">
+        <div class="sticky top-14 h-[calc(100svh-3.5rem)] overflow-y-auto px-3 py-6">
+          <GroupNav @select="emit('selectGroup', $event)" />
+        </div>
       </aside>
       <main class="min-w-0 flex-1 px-4 py-6 md:px-8">
         <slot />

@@ -90,12 +90,14 @@
     @apply border-border;
   }
 
+  /* clip, not hidden: hidden turns body into a scroll container and breaks position: sticky
+     (the docs sidebar would scroll away with the page) */
   body {
     @apply bg-background text-foreground;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   html {
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 }

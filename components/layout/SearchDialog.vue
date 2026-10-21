@@ -25,7 +25,8 @@ const { darkModeToggle } = useConfig().value.header;
 const open = defineModel<boolean>('open');
 const { placeholderDetailed } = useConfig().value.search;
 
-const activeSelect = ref(0);
+const router = useRouter();
+const store = useDocStore();
 
 const { Meta_K, Ctrl_K } = useMagicKeys({
   passive: false,
@@ -42,10 +43,10 @@ watch([Meta_K, Ctrl_K], (v) => {
 const input = ref('');
 const savedInput = ref('')
 
+// Keep the last query (and its results) between openings of the dialog
 watch(open, (isOpen) => {
   if (!isOpen) {
     savedInput.value = input.value
-    performSearch(savedInput.value);
   } else {
     input.value = savedInput.value
   }
@@ -77,7 +78,6 @@ const performSearch = useDebounceFn(async (searchTerm: string) => {
 watch(
   input,
   (v) => {
-    activeSelect.value = 0;
     if (!v) {
       searchResult.value = [];
       searchLoading.value = false;
@@ -99,24 +99,9 @@ function getHighlightedParts(text: string) {
     .filter(part => part.text.length > 0);
 }
 
-const router = useRouter();
-const store = useDocStore();
-
-async function handleEnter() {
-  const item = searchResult.value[activeSelect.value];
-  if (item) {
-    store.selectDoc(item.url);
-    open.value = false;
-    await router.push(item.link);
-  }
-}
-
-function handleNavigate(delta: -1 | 1) {
-  if (activeSelect.value + delta >= 0 && activeSelect.value + delta < visibleResults.value.length)
-    activeSelect.value += delta;
-}
-
-async function handleClick(item: Item) {
+// Called by the combobox for both a click and Enter on the highlighted item;
+// arrow keys are handled by the combobox itself
+async function handleSelect(item: Item) {
   if (item.url !== store.selectedDocUrl) {
     store.selectDoc(item.url);
   }
@@ -138,9 +123,6 @@ async function handleClick(item: Item) {
         <CommandInput
             :loading="searchLoading"
             :placeholder="placeholderDetailed"
-            @keydown.enter="handleEnter"
-            @keydown.down="handleNavigate(1)"
-            @keydown.up="handleNavigate(-1)"
         />
         <CommandList class="text-sm" @escape-key-down="open = false">
           <div v-if="!input?.length" class="py-6 text-center text-muted-foreground">
@@ -153,10 +135,9 @@ async function handleClick(item: Item) {
                 v-for="(item, i) in visibleResults"
                 :value="item"
                 :key="`${item.url}-${item.name}-${i}`"
-                v-memo="[item, i === activeSelect, store.isRefreshing[item.url], store.isInvalid[item.url], store.docs[item.url]]"
+                v-memo="[item, store.isRefreshing[item.url], store.isInvalid[item.url], store.docs[item.url]]"
                 class="flex select-none rounded-md p-2 hover:cursor-pointer hover:bg-muted"
-                :class="[i === activeSelect && 'bg-muted']"
-                @click="activeSelect = i; handleClick(item)"
+                @select="handleSelect(item)"
             >
               <RefreshCcw v-if="store.isRefreshing[item.url]" class="mr-2 size-4 animate-spin" />
               <CircleAlert v-else-if="store.isInvalid[item.url]" class="mr-2 size-4" />

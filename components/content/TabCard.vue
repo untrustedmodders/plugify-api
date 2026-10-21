@@ -1,3 +1,9 @@
+<script lang="ts">
+// How many rows each table has expanded to, kept across remounts so that coming
+// back from a detail page can restore a scroll position past the first page
+const shownRows = new Map<string, number>();
+</script>
+
 <script setup lang="ts">
 import {
   Table,
@@ -19,6 +25,22 @@ const props = defineProps<{
   url: string;
 }>()
 const root = ref(window.location.origin);
+
+// Rows are rendered in pages: a group with thousands of entries would otherwise
+// block the page for seconds, like the search dialog did
+const PAGE_SIZE = 200;
+const tableKey = computed(() => `${props.url}|${props.group}|${props.title}`);
+const limit = ref(shownRows.get(tableKey.value) ?? PAGE_SIZE);
+watch(tableKey, (key) => {
+  limit.value = shownRows.get(key) ?? PAGE_SIZE;
+});
+const visibleElements = computed(() => props.elements.slice(0, limit.value));
+const remaining = computed(() => props.elements.length - visibleElements.value.length);
+
+function showMore() {
+  limit.value += PAGE_SIZE;
+  shownRows.set(tableKey.value, limit.value);
+}
 </script>
 
 <template>
@@ -37,8 +59,10 @@ const root = ref(window.location.origin);
               <TableHead class="min-w-[200px] md:w-[60%]">Description</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody v-for="element in elements" :key="element.name">
+          <TableBody>
               <TableRow
+                  v-for="element in visibleElements"
+                  :key="element.name"
                   @click.stop="onclick(element.name)"
                   class="cursor-pointer"
               >
@@ -52,6 +76,11 @@ const root = ref(window.location.origin);
               </TableRow>
           </TableBody>
         </Table>
+      </div>
+      <div v-if="remaining > 0" class="flex justify-center pt-3">
+        <Button variant="outline" size="sm" @click="showMore">
+          Show more ({{ remaining }} remaining)
+        </Button>
       </div>
     </CardContent>
   </Card>

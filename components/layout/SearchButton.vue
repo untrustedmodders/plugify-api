@@ -10,7 +10,7 @@ const { enable, inAside, style, placeholder } = useConfig().value.search;
       v-if="style === 'input'"
       variant="outline"
       class="w-full self-center rounded-md pr-1.5 font-normal text-muted-foreground hover:text-accent-foreground"
-      :class="[inAside ? 'mb-4' : 'md:w-40 lg:w-64']"
+      :class="[inAside ? 'mb-4' : 'md:w-48 lg:w-72 2xl:w-96']"
       @click="isOpen = true"
     >
       <span class="mr-auto overflow-hidden">

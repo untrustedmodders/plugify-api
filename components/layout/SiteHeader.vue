@@ -20,9 +20,12 @@ watch(() => route.fullPath, () => { menuOpen.value = false })
 <template>
   <header class="sticky top-0 z-40 w-full border-b bg-card/80 backdrop-blur-lg">
     <div class="flex h-14 items-center gap-2 px-4 md:px-6">
+      <!-- From md up, left and right grow equally so the search stays in the middle;
+           on phones the search takes the room left between them -->
+      <div class="flex min-w-fit shrink-0 items-center gap-2 md:flex-1">
       <Sheet v-model:open="menuOpen">
         <SheetTrigger as-child>
-          <Button variant="ghost" size="icon" class="-ml-2 md:hidden">
+          <Button variant="ghost" size="icon" class="-ml-2 xl:hidden">
             <Menu :size="18" />
             <span class="sr-only">Menu</span>
           </Button>
@@ -58,7 +61,9 @@ watch(() => route.fullPath, () => { menuOpen.value = false })
         <img :src="config.header.logo.dark" alt="Plugify" class="hidden h-7 dark:block" />
       </NuxtLink>
 
-      <nav class="hidden items-center gap-1 md:flex">
+      <!-- Below xl the menu, the search and the API picker do not fit side by side, so the
+           menu moves into the ☰ sheet there -->
+      <nav class="hidden items-center gap-1 xl:flex">
         <NuxtLink
             v-for="link in config.header.nav"
             :key="link.title"
@@ -71,12 +76,14 @@ watch(() => route.fullPath, () => { menuOpen.value = false })
           <ArrowUpRight v-if="isExternal(link.to)" :size="10" class="mt-0.5" />
         </NuxtLink>
       </nav>
+      </div>
 
-      <div class="flex flex-1 items-center justify-end gap-1 md:gap-2">
+      <SearchButton />
+
+      <div class="flex min-w-fit shrink-0 items-center justify-end gap-1 md:flex-1 md:gap-2">
         <div class="max-sm:hidden">
           <ManifestSwitcher />
         </div>
-        <SearchButton />
         <div class="flex">
           <div v-if="config.theme.customizable" class="max-sm:hidden">
             <ThemePopover />

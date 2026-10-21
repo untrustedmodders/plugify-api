@@ -13,7 +13,7 @@ import type {
     ClassType,
 } from '~/lib/manifest';
 import { definitionOf, resolveManifest } from '~/lib/manifest';
-import { defaultManifests, findDefaultManifest } from '~/lib/manifests';
+import { defaultManifests, findDefaultManifest, normalizeDocUrl } from '~/lib/manifests';
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
@@ -80,40 +80,6 @@ export type ManifestInfo = {
 // Unexpanded template placeholders such as "${S2SDK_PACKAGE}" are not real values
 function cleanText(value?: string) {
     return value && !value.includes('${') ? value.trim() || undefined : undefined;
-}
-
-function formatUrl(url: string) {
-    // Handle GitHub URLs
-    if (url.includes('://github.com')) {
-        return url
-            .replace('://github.com', '://raw.githubusercontent.com')
-            .replace('/blob/', '/');
-    }
-
-    // Handle GitLab URLs
-    if (url.includes('://gitlab.com')) {
-        return url.replace('/-/blob/', '/-/raw/');
-    }
-
-    // Handle self-hosted GitLab instances (common pattern: gitlab.domain.com)
-    if (url.match(/:\/\/gitlab\.[^/]+/) && url.includes('/-/blob/')) {
-        return url.replace('/-/blob/', '/-/raw/');
-    }
-
-    return url;
-}
-
-// Turns a user-supplied link into the raw manifest URL, or null if it is not http(s)
-function normalizeDocUrl(url: string): string | null {
-    try {
-        const u = new URL(formatUrl(url));
-        if (u.protocol === "http:" || u.protocol === "https:") {
-            return u.href;
-        }
-    } catch (error) {
-        console.error('Invalid url:', error);
-    }
-    return null;
 }
 
 export function formatName(url: string) {

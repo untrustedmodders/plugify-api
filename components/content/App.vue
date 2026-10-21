@@ -61,12 +61,9 @@ onMounted(() => {
   store.initDB(route.query.file);
 })
 
-watch(() => store.selectedDocUrl, (newUrl) => {
-  if (newUrl) store.loadDoc(newUrl)
-})
-
 const countedGroups = computed(() => {
-  const group = store.selectedDoc[store.selectedGroup];
+  const group = store.selectedDoc?.[store.selectedGroup];
+  if (!group) return [];
   const data: { name: string, count: number }[] = [
     {
       name: "Methods",
@@ -87,7 +84,7 @@ const countedGroups = computed(() => {
   ];
   return data;
 });
-const filteredGroups = computed(() => store.selectedDoc[store.selectedGroup]);
+const filteredGroups = computed(() => store.selectedDoc?.[store.selectedGroup]);
 const isRefreshing = computed(() => store.isRefreshing[store.selectedDocUrl]);
 
 store.onRouteChange(router.currentRoute.value.hash);
@@ -235,17 +232,14 @@ function selectGroup(name?: string) {
         <template v-if="isRefreshing">
           <Spinner />
         </template>
-        <template v-else-if="store.foundMethod">
-          <Method class="w-full max-w-full" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-        </template>
-        <template v-else-if="store.foundDelegate">
-          <Method class="w-full max-w-full" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-        </template>
-        <template v-else-if="store.foundEnum">
-          <Enum class="w-full max-w-full" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
-        </template>
-        <template v-else-if="store.foundClass">
-          <Class class="w-full max-w-full" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+        <template v-else-if="store.foundMethod || store.foundDelegate || store.foundEnum || store.foundClass">
+          <!-- Kinds share one namespace per group, so show every definition with this name -->
+          <div class="flex flex-col gap-4">
+            <Method v-if="store.foundMethod" class="w-full max-w-full" :method="store.foundMethod" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+            <Method v-if="store.foundDelegate" class="w-full max-w-full" :method="store.foundDelegate" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+            <Enum v-if="store.foundEnum" class="w-full max-w-full" :enumerator="store.foundEnum" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+            <Class v-if="store.foundClass" class="w-full max-w-full" :klass="store.foundClass" :group="store.selectedGroup" :url="store.selectedDocUrl" />
+          </div>
         </template>
         <template v-else-if="store.selectedDoc && filteredGroups">
           <Tabs v-model="currentTab" :key="store.selectedGroup">

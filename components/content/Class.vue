@@ -50,15 +50,15 @@ const groupMethods = computed(() => {
     </CardHeader>
     <CardContent>
       <!-- Handle Type Information -->
-      <div class="mb-6">
+      <div v-if="klass.handleType || klass.invalidValue" class="mb-6">
         <h4 class="text-lg font-semibold leading-none tracking-tight mb-3">Handle Information</h4>
         <div class="bg-secondary p-4 rounded-md">
           <div class="flex gap-4">
-            <div>
+            <div v-if="klass.handleType">
               <span class="text-muted-foreground">Handle Type:</span>
               <code class="ml-2 text-primary">{{ klass.handleType }}</code>
             </div>
-            <div>
+            <div v-if="klass.invalidValue">
               <span class="text-muted-foreground">Invalid Value:</span>
               <code class="ml-2 text-primary">{{ klass.invalidValue }}</code>
             </div>

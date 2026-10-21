@@ -200,6 +200,9 @@ export const useDocStore = defineStore('docStore', {
         async refreshDocInBackground(url: string) {
             try {
                 const response: Response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                }
                 // Link by-name prototype/enum references before anything reads the
                 // manifest, so the rest of this store only ever sees definitions.
                 const manifest: ManifestType = resolveManifest(await response.json());
@@ -380,24 +383,18 @@ export const useDocStore = defineStore('docStore', {
         },
 
         onRouteChange(hash: string) {
-            this.fragments = hash
-                .replace(/^#\//, "")
+            const segments = hash
+                .replace(/^#\/?/, "")
                 .split("/")
                 .map(segment => segment.trim())
-                .filter(segment => /^[a-zA-Z0-9-_${}]+$/.test(segment));
+                .filter(segment => segment.length > 0);
 
-            switch (this.fragments.length) {
-                case 1:
-                    this.selectedGroup = this.fragments[0];
-                    this.selectedItem = '';
-                    break;
-                case 2:
-                    this.selectedGroup = this.fragments[0];
-                    this.selectedItem = this.fragments[1];
-                    break;
-                default:
-                    return;
-            }
+            // Only #/, #/group and #/group/item are routes; anything else (bad characters,
+            // extra segments) selects nothing rather than shifting segments around
+            const valid = segments.length <= 2 && segments.every(segment => /^[a-zA-Z0-9-_${}]+$/.test(segment));
+            this.fragments = valid ? segments : [];
+            this.selectedGroup = this.fragments[0] ?? '';
+            this.selectedItem = this.fragments[1] ?? '';
 
             this.updateSelection();
         },
@@ -406,10 +403,10 @@ export const useDocStore = defineStore('docStore', {
             if (this.selectedDoc) {
                 let group = this.selectedDoc[this.selectedGroup];
                 if (group !== undefined) {
-                    this.foundMethod = group.methods[this.selectedItem];
-                    this.foundDelegate = group.delegates[this.selectedItem];
-                    this.foundEnum = group.enumerators[this.selectedItem];
-                    this.foundClass = group.classes[this.selectedItem];
+                    this.foundMethod = group.methods[this.selectedItem] ?? null;
+                    this.foundDelegate = group.delegates[this.selectedItem] ?? null;
+                    this.foundEnum = group.enumerators[this.selectedItem] ?? null;
+                    this.foundClass = group.classes[this.selectedItem] ?? null;
                     return;
                 }
             }
@@ -421,8 +418,11 @@ export const useDocStore = defineStore('docStore', {
 
         onDataUpdated(url: string, data: Document) {
             this.docs[url] = data;
-            this.selectedDoc = data;
-            this.updateSelection();
+            // Another manifest may have been selected while this one was loading
+            if (url === this.selectedDocUrl) {
+                this.selectedDoc = data;
+                this.updateSelection();
+            }
         }
     },
 })

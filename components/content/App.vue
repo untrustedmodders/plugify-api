@@ -76,6 +76,14 @@ watch(() => [store.ready, store.selectedGroup, store.selectedDocUrl, store.docs[
     if (found && store.selectedGroup === group) store.openDoc(found)
   })
 
+// A link to an item the selected manifest's group does not have may be to one added after
+// the manifest was cached; download it again then (the spinner shows meanwhile)
+watch(() => [store.ready, store.selectedGroup, store.selectedItem, store.selectedDocUrl, store.docs[store.selectedDocUrl]] as const,
+  ([ready, group, item, url, doc]) => {
+    if (!ready || !group || !item || !url || !doc?.[group]) return
+    store.refreshIfMissing(url, group, item)
+  })
+
 // Navigation keeps ?file= (see useDocNavigation); this updates it when the manifest changes
 const { go, queryFor } = useDocNavigation()
 watch(() => [store.ready, store.selectedDocUrl] as const, ([ready]) => {

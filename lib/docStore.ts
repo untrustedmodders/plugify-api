@@ -133,6 +133,9 @@ export const useDocStore = defineStore('docStore', {
         // The API being opened by openApi (see useDocNavigation), shown as loading meanwhile
         openingApi: '',
         isInvalid: {} as Record<string, boolean>,
+        // Manifests downloaded during this visit; the others come from the cache and may
+        // be older than the manifest itself (see refreshIfMissing)
+        isFetched: {} as Record<string, boolean>,
 
         docInfo: {} as Record<string, ManifestInfo>,
         // Names the user gave to manifests, by URL
@@ -288,8 +291,10 @@ export const useDocStore = defineStore('docStore', {
             }
 
             this.isRefreshing[url] = false;
+            this.isFetched[url] = true;
             if (!this.docUrls.includes(url)) {
                 delete this.isInvalid[url];
+                delete this.isFetched[url];
                 delete this.isRefreshing[url];
             }
         },
@@ -375,6 +380,29 @@ export const useDocStore = defineStore('docStore', {
             return this.docs[url];
         },
 
+        /** Downloads a manifest again, bypassing the cache; resolves once it is done. */
+        async reloadDoc(url: string) {
+            this.refreshDoc(url);
+            while (this.isRefreshing[url]) {
+                await new Promise(resolve => setTimeout(resolve, 100));
+            }
+            return this.docs[url];
+        },
+
+        /**
+         * A link may point to a group or item added to a manifest after it was cached: when
+         * the cached copy lacks it, download the manifest again (once per visit).
+         * Resolves to the manifest as it is afterwards.
+         */
+        async refreshIfMissing(url: string, group: string, item?: string) {
+            const doc = this.docs[url];
+            const content = doc?.[group];
+            const found = content && (!item || !!(content.methods[item] || content.delegates[item]
+                || content.enumerators[item] || content.classes[item]));
+            if (found || this.isFetched[url]) return doc;
+            return this.reloadDoc(url);
+        },
+
         /**
          * Finds the manifest that has a group, so a link like #/Group/Item opens for someone
          * who never had that manifest selected: the user's manifests are tried first, then
@@ -386,7 +414,8 @@ export const useDocStore = defineStore('docStore', {
                 const missing = DEFAULT_MANIFEST_URLS.filter(url => !this.docUrls.includes(url));
                 for (const url of [...this.docUrls, ...missing]) {
                     const added = !this.docUrls.includes(url) && this.addDocUrl(url);
-                    const doc = await this.ensureDoc(url);
+                    await this.ensureDoc(url);
+                    const doc = await this.refreshIfMissing(url, group);
                     if (doc?.[group]) return url;
                     if (added) this.removeDocUrl(url);
                 }
@@ -427,6 +456,7 @@ export const useDocStore = defineStore('docStore', {
             delete this.docInfo[url];
             delete this.isInvalid[url];
             delete this.isRefreshing[url];
+            delete this.isFetched[url];
             this.deleteCachedDoc(url);
             this.renameDoc(url);
 

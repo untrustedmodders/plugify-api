@@ -229,9 +229,12 @@ export const useDocStore = defineStore('docStore', {
 
                 let data: Document = {};
 
+                // Items without a group of their own go under the manifest's name
+                const defaultGroup = cleanText(manifest.name) || findDefaultManifest(url)?.name || formatName(url);
+
                 if (manifest.methods !== undefined) {
                     const methodMap: Record<string, MethodMap> = manifest.methods.reduce((acc: Record<string, MethodMap>, item: MethodType) => {
-                        const group = item.group || manifest.name || '';
+                        const group = item.group || defaultGroup;
                         if (!acc[group]) {
                             acc[group] = {};
                         }
@@ -256,7 +259,7 @@ export const useDocStore = defineStore('docStore', {
 
                 if (manifest.classes !== undefined) {
                     const classMap: Record<string, ClassMap> = manifest.classes.reduce((acc: Record<string, ClassMap>, item: ClassType) => {
-                        const group = item.group || manifest.name || '';
+                        const group = item.group || defaultGroup;
                         if (!acc[group]) {
                             acc[group] = {};
                         }

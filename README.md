@@ -2,6 +2,33 @@
 
 Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
+## Listed APIs
+
+The APIs on the home page come from two lists at the project root:
+
+- `manifests.json`: the official ones, offered to every visitor;
+- `manifests.community.json`: the ones made by the community, shown under **Community**.
+
+Each entry:
+
+```json
+{
+  "url": "https://raw.githubusercontent.com/<owner>/<repo>/refs/heads/main/<name>.pplugin.in",
+  "slug": "my_plugin",
+  "name": "My Plugin",
+  "description": "One sentence about what the plugin provides.",
+  "icon": "lucide:puzzle",
+  "author": "your-name"
+}
+```
+
+- `slug` is the API's address on the site (`https://api.plugify.net/my_plugin`). The build makes
+  a page there with `name` and `description`, which link previews show. Slugs must be unique
+  across both lists; removing an entry removes its page with the next deploy.
+- `icon` is any [Iconify](https://icon-sets.iconify.design/) name from the bundled sets
+  (`lucide:*`, `simple-icons:*`); `author` is shown on community cards only.
+- Any other manifest still opens with `?file=<url>`, under the site's general preview.
+
 ## Setup
 
 Make sure to install dependencies:

@@ -18,7 +18,8 @@ const breadcrumbs = computed(() => {
     path: `#/${props.fragments.slice(0, index + 1).join("/")}`,
     isLast: index === props.fragments.length - 1,
   }));
-  return props.root ? [{ name: props.root, path: '#/', isLast: crumbs.length === 0 }, ...crumbs] : crumbs;
+  // The root goes to the home page, at / rather than the manifest's address
+  return props.root ? [{ name: props.root, path: '/#/', isLast: crumbs.length === 0 }, ...crumbs] : crumbs;
 });
 </script>
 
@@ -31,7 +32,13 @@ const breadcrumbs = computed(() => {
             <BreadcrumbPage>{{ breadcrumb.name }}</BreadcrumbPage>
           </template>
           <template v-else>
-            <BreadcrumbLink :href="breadcrumb.path">
+            <!-- The root leaves the manifest's address: NuxtLink, as a plain href would reload
+                 the page. The others stay on it: a plain hash href, as the router would
+                 turn #/... into /#/... -->
+            <BreadcrumbLink v-if="breadcrumb.path.startsWith('/')" as-child>
+              <NuxtLink :to="breadcrumb.path">{{ breadcrumb.name }}</NuxtLink>
+            </BreadcrumbLink>
+            <BreadcrumbLink v-else :href="breadcrumb.path">
               {{ breadcrumb.name }}
             </BreadcrumbLink>
           </template>

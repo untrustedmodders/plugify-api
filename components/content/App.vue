@@ -2,6 +2,7 @@
 import { onMounted, ref, watch, nextTick } from 'vue'
 import { useRoute, useRouter } from '#app';
 import { useDocStore, manifestTitle } from '~/lib/docStore'
+import { findManifestBySlug, slugFromPath } from '~/lib/manifests'
 
 // Scroll position tracking for hash-based routing
 const scrollPositions = new Map<string, number>()
@@ -25,15 +26,37 @@ const route = useRoute();
 const router = useRouter();
 const store = useDocStore();
 
+// The listed manifest this address belongs to (/s2sdk), known on the server too
+const pageManifest = computed(() => findManifestBySlug(slugFromPath(router.currentRoute.value.path)));
+
 useHead({
-  title: () => `Plugify API ${store.selectedGroup ? ` :: ${store.selectedGroup}` : ``} ${store.selectedItem ? ` :: ${store.selectedItem}` : ``}`,
+  title: () => [
+    'Plugify API',
+    store.selectedGroup ? manifestTitle(store.selectedDocUrl) : pageManifest.value?.name,
+    store.selectedGroup,
+    store.selectedItem,
+  ].filter(Boolean).join(' :: '),
 });
 
-onMounted(() => {
+onMounted(async () => {
   // The hash never reaches the server, so it is read only after hydration;
   // reading it during setup made the client render differ from the server's
-  store.onRouteChange(router.currentRoute.value.hash);
-  store.initDB(route.query.file);
+  const current = router.currentRoute.value;
+  store.onRouteChange(current.hash);
+
+  const pageUrl = pageManifest.value?.url;
+  // /s2sdk without a hash opens the API's first group; show loading until then
+  const openPage = !!pageUrl && !store.selectedGroup;
+  if (openPage) store.openingApi = pageUrl;
+  await store.initDB(pageUrl ?? route.query.file);
+
+  if (openPage) {
+    await openApi(pageUrl, true);
+  } else if (!pageUrl && current.path !== '/') {
+    // No such manifest (a removed one, a typo): GitHub Pages serves 404.html, which
+    // loads the site; go to the home page, keeping a hash an old link may carry
+    router.replace({ path: '/', query: current.query, hash: current.hash });
+  }
 })
 
 const countedGroups = computed(() => {
@@ -84,13 +107,27 @@ watch(() => [store.ready, store.selectedGroup, store.selectedItem, store.selecte
     store.refreshIfMissing(url, group, item)
   })
 
-// Navigation keeps ?file= (see useDocNavigation); this updates it when the manifest changes
-const { go, queryFor } = useDocNavigation()
-watch(() => [store.ready, store.selectedDocUrl] as const, ([ready]) => {
-  if (!ready) return
+// Navigation keeps the manifest's address or ?file= (see useDocNavigation); this updates
+// them when the manifest changes
+const { go, queryFor, pathFor, openApi } = useDocNavigation()
+watch(() => [store.ready, store.selectedDocUrl, store.openingApi] as const, ([ready, , opening]) => {
+  if (!ready || opening) return // openApi navigates itself once the API is loaded
   const current = router.currentRoute.value
   const query = queryFor()
-  if (current.query.file !== query.file) router.replace({ query, hash: current.hash })
+  const path = pathFor(current.hash)
+  if (current.query.file !== query.file || current.path !== path) router.replace({ path, query, hash: current.hash })
+})
+
+// Back and forward may move between manifests' addresses: follow the path
+watch(() => router.currentRoute.value.path, () => {
+  const url = pageManifest.value?.url
+  if (!store.ready || !url || store.openingApi) return
+  if (!router.currentRoute.value.hash) {
+    openApi(url, true)
+  } else if (url !== store.selectedDocUrl) {
+    store.addDocUrl(url)
+    store.openDoc(url)
+  }
 })
 
 // router.currentRoute rather than useRoute(): Nuxt's route lags behind hash navigation
@@ -153,7 +190,7 @@ watch(() => [currentTab.value, store.selectedGroup, store.selectedItem, store.se
   if (!group || item) return
   const value = tab.toLowerCase()
   if (urlTab !== value) {
-    router.replace({ query: queryFor(), hash: `#/${group}?tab=${value}` })
+    go(`#/${group}?tab=${value}`, true)
   }
 });
 

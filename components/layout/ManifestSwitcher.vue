@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, ChevronDown, Settings2, FileText } from 'lucide-vue-next'
 import { useDocStore, manifestTitle } from '~/lib/docStore'
+import { communityManifests, defaultManifests, findDefaultManifest } from '~/lib/manifests'
 import { ref } from 'vue'
 import ManifestManager from '~/components/layout/ManifestManager.vue'
 
@@ -19,6 +20,14 @@ function getStatusIcon(url: string) {
   if (store.docs[url]) return 'valid'
   return 'unknown'
 }
+
+// Official ones, the user's own, then the community ones: listed manifests show up even
+// before they were ever opened (opening one adds it to the user's list)
+const sections = computed(() => [
+  { label: 'Official', urls: defaultManifests.map(manifest => manifest.url) },
+  { label: 'Yours', urls: store.docUrls.filter(url => !findDefaultManifest(url)) },
+  { label: 'Community', urls: communityManifests.map(manifest => manifest.url) },
+].filter(section => section.urls.length > 0))
 
 const currentManifestName = computed(() => {
   return store.selectedDocUrl ? manifestTitle(store.selectedDocUrl) : 'No manifest selected'
@@ -61,49 +70,53 @@ const currentManifestName = computed(() => {
       <DropdownMenuSeparator />
 
       <!-- Manifest list -->
-      <div v-if="store.docUrls.length > 0" class="max-h-64 overflow-y-auto">
-        <DropdownMenuItem
-          v-for="url in store.docUrls"
-          :key="url"
-          @click="handleSelectManifest(url)"
-          class="flex items-center gap-3 p-3"
-          :class="[store.selectedDocUrl === url && 'bg-accent']"
-        >
-          <!-- Status indicator -->
-          <div class="flex-shrink-0">
-            <RefreshCcw
-              v-if="getStatusIcon(url) === 'refreshing'"
-              class="h-4 w-4 animate-spin text-muted-foreground"
-            />
-            <CircleAlert
-              v-else-if="getStatusIcon(url) === 'error'"
-              class="h-4 w-4 text-destructive"
-            />
-            <CircleCheck
-              v-else-if="getStatusIcon(url) === 'valid'"
-              class="h-4 w-4 text-green-600"
-            />
-            <CircleHelp
-              v-else
-              class="h-4 w-4 text-muted-foreground"
-            />
-          </div>
-
-          <!-- Manifest info -->
-          <div class="flex-1 min-w-0">
-            <div class="font-medium text-sm truncate">
-              {{ manifestTitle(url) }}
+      <div v-if="sections.length > 0" class="max-h-96 overflow-y-auto overflow-x-hidden">
+        <template v-for="(section, index) in sections" :key="section.label">
+          <DropdownMenuSeparator v-if="index > 0" />
+          <DropdownMenuLabel class="py-1 text-xs font-normal text-muted-foreground">{{ section.label }}</DropdownMenuLabel>
+          <DropdownMenuItem
+            v-for="url in section.urls"
+            :key="url"
+            @click="handleSelectManifest(url)"
+            class="flex items-center gap-3 p-2"
+            :class="[store.selectedDocUrl === url && 'bg-accent']"
+          >
+            <!-- Status indicator -->
+            <div class="flex-shrink-0">
+              <RefreshCcw
+                v-if="getStatusIcon(url) === 'refreshing'"
+                class="h-4 w-4 animate-spin text-muted-foreground"
+              />
+              <CircleAlert
+                v-else-if="getStatusIcon(url) === 'error'"
+                class="h-4 w-4 text-destructive"
+              />
+              <CircleCheck
+                v-else-if="getStatusIcon(url) === 'valid'"
+                class="h-4 w-4 text-green-600"
+              />
+              <CircleHelp
+                v-else
+                class="h-4 w-4 text-muted-foreground"
+              />
             </div>
-            <div class="text-xs text-muted-foreground truncate">
-              {{ url }}
-            </div>
-          </div>
 
-          <!-- Current indicator -->
-          <div v-if="store.selectedDocUrl === url" class="text-xs text-primary">
-            Current
-          </div>
-        </DropdownMenuItem>
+            <!-- Manifest info -->
+            <div class="flex-1 min-w-0">
+              <div class="font-medium text-sm truncate">
+                {{ manifestTitle(url) }}
+              </div>
+              <div class="text-xs text-muted-foreground truncate">
+                {{ url }}
+              </div>
+            </div>
+
+            <!-- Current indicator -->
+            <div v-if="store.selectedDocUrl === url" class="text-xs text-primary">
+              Current
+            </div>
+          </DropdownMenuItem>
+        </template>
       </div>
 
       <!-- Empty state -->

@@ -1,5 +1,6 @@
 import type { Theme } from '@/lib/registry/themes';
 import { themes } from '@/lib/registry/themes';
+import { sharedCookieOptions } from '~/composables/useSharedCookie';
 
 interface Config {
   theme?: string;
@@ -11,12 +12,14 @@ export function useThemes() {
   const isDark = computed(() => colorMode.value === 'dark');
 
   const defaultTheme = useConfig().value.theme;
-  // Renamed from 'theme': that cookie got the old default written for every visitor, so
-  // everyone would have kept it instead of getting Plugify as the new default
-  const config = useCookie<Config>('site-theme', {
+  // Shared with plugify.net (see useSharedCookie.ts). 'site-theme' was this site's
+  // own cookie before the two were synced; a choice saved there is carried over.
+  const legacy = useCookie<Config | null>('site-theme');
+  const config = useCookie<Config>('plugify-theme', {
+    ...sharedCookieOptions(),
     default: (): Config => ({
-      theme: defaultTheme.color,
-      radius: defaultTheme.radius,
+      theme: legacy.value?.theme ?? defaultTheme.color,
+      radius: legacy.value?.radius ?? defaultTheme.radius,
     }),
   });
   // An empty or broken cookie parses to null; fall back to the defaults

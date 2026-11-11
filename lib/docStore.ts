@@ -13,7 +13,7 @@ import type {
     ClassType,
 } from '~/lib/manifest';
 import { definitionOf, resolveManifest } from '~/lib/manifest';
-import { defaultManifests, findDefaultManifest, normalizeDocUrl } from '~/lib/manifests';
+import { defaultManifests, findDefaultManifest, manifestPath, normalizeDocUrl } from '~/lib/manifests';
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
@@ -89,11 +89,12 @@ export function formatName(url: string) {
 }
 
 /**
- * The name shown for a manifest: the one the user gave it, else its manifests.json
- * name, else the name in the manifest itself, else its file name.
+ * The name shown for a manifest: a listed (official or community) one keeps its listed
+ * name; any other one shows the name the user gave it, else the name in the manifest
+ * itself, else its file name.
  */
 export function manifestTitle(url: string) {
-    return useDocStore().customNames[url] || defaultManifestTitle(url);
+    return (!findDefaultManifest(url) && useDocStore().customNames[url]) || defaultManifestTitle(url);
 }
 
 /** The name a manifest gets when the user has not named it. */
@@ -104,12 +105,12 @@ export function defaultManifestTitle(url: string) {
 }
 
 /**
- * A link to a place in a manifest that opens for anyone: manifests.json ones are found by
- * their group, any other manifest is carried along as ?file= so it gets added on open.
+ * A link to a place in a manifest that opens for anyone: a listed manifest has its own
+ * address (/s2sdk), any other one is carried along as ?file= so it gets added on open.
  */
 export function docLink(origin: string, url: string, path: string) {
-    const file = findDefaultManifest(url) ? '' : `?file=${encodeURIComponent(url)}`;
-    return `${origin}/${file}#/${path}`;
+    const base = findDefaultManifest(url) ? manifestPath(url) : `/?file=${encodeURIComponent(url)}`;
+    return `${origin}${base}#/${path}`;
 }
 
 /** The description shown for a manifest: manifests.json first, then the manifest's own. */
@@ -176,9 +177,10 @@ export const useDocStore = defineStore('docStore', {
             this.docUrls = JSON.parse(localStorage.getItem('docUrls') || '[]')
             this.customNames = JSON.parse(localStorage.getItem('docNames') || '{}')
 
-            // If first-time user (no manifests), add default manifests
-            if (this.docUrls.length === 0) {
-                this.docUrls = [...DEFAULT_MANIFEST_URLS];
+            // The official manifests are always on the list: first-time users get them, and
+            // they cannot be removed (any removed before that are put back)
+            if (DEFAULT_MANIFEST_URLS.some(url => !this.docUrls.includes(url))) {
+                this.docUrls = [...DEFAULT_MANIFEST_URLS, ...this.docUrls.filter(url => !DEFAULT_MANIFEST_URLS.includes(url))];
                 localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
             }
 
@@ -190,7 +192,17 @@ export const useDocStore = defineStore('docStore', {
             this.selectedDoc = this.docs[this.selectedDocUrl];
             localStorage.setItem('selectedDocUrl', this.selectedDocUrl);
             this.loadDoc(this.selectedDocUrl);
+            // The official manifests load right away, from the cache or in the background, so
+            // their cards show their counts and search covers them without opening each
+            for (const url of DEFAULT_MANIFEST_URLS) {
+                if (url !== this.selectedDocUrl) this.loadDoc(url);
+            }
             this.ready = true;
+        },
+
+        /** Downloads every manifest on the list again, bypassing the cache. */
+        refreshAll() {
+            for (const url of this.docUrls) this.refreshDoc(url);
         },
 
         async loadDoc(url: string) {

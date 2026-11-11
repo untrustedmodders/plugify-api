@@ -1,0 +1,10 @@
+[
+  {
+    "url": "https://github.com/fr0nch/customhud/blob/main/customhud.pplugin",
+    "slug": "customhud",
+    "name": "Custom HUD",
+    "description": "Bridge to CS Script for controlling custom_hud_layout from plugins in any language.",
+    "icon": "lucide:layout-dashboard",
+    "author": "Fr4nch"
+  }
+]

@@ -10,8 +10,12 @@ export const alertVariants = cva(
     variants: {
       variant: {
         default: 'bg-background text-foreground',
+        // The same tint as the danger callouts on plugify.net: a coloured border and
+        // background, the body in the normal text colour (red text on red was hard to read)
         destructive:
-          'border-destructive/50 text-destructive dark:border-destructive [&>svg]:text-destructive',
+          'border-red-500/40 bg-red-500/10 text-foreground [&>svg]:text-red-500 [&_h5]:text-red-700 dark:[&_h5]:text-red-300',
+        warning:
+          'border-amber-500/40 bg-amber-500/10 text-foreground [&>svg]:text-amber-500 [&_h5]:text-amber-700 dark:[&_h5]:text-amber-300',
       },
     },
     defaultVariants: {

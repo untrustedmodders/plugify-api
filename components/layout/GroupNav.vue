@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { ArrowUpRight, Github, Gitlab } from 'lucide-vue-next'
 import { useDocStore, manifestTitle } from '~/lib/docStore'
+import { manifestRepository } from '~/lib/manifests'
 import Spinner from '~/components/layout/Spinner.vue'
 
 const emit = defineEmits<{ select: [group: string] }>()
@@ -13,13 +15,35 @@ const groups = computed(() => Object.entries(store.selectedDoc || {})
     count: Object.keys(content.methods).length + Object.keys(content.delegates).length
       + Object.keys(content.enumerators).length + Object.keys(content.classes).length,
   })))
+
+// Official and community APIs link to the repository they come from
+const repository = computed(() => manifestRepository(store.selectedDocUrl))
+const onGithub = computed(() => !!repository.value?.startsWith('https://github.com/'))
 </script>
 
 <template>
   <div v-if="store.selectedDocUrl" class="flex flex-col gap-1">
-    <NuxtLink to="/#/" class="truncate px-2 pb-1 text-sm font-semibold">
-      {{ manifestTitle(store.selectedDocUrl) }}
-    </NuxtLink>
+    <!-- The API itself, set apart from its groups below -->
+    <div class="mb-2 flex items-start gap-2 border-b px-2 pb-3">
+      <!-- A long name wraps rather than being cut off; the button stays at its first line -->
+      <NuxtLink to="/#/" class="min-w-0 flex-1 text-base font-semibold leading-snug [overflow-wrap:anywhere]">
+        {{ manifestTitle(store.selectedDocUrl) }}
+      </NuxtLink>
+      <!-- Spelled out: a bare icon next to the name did not say where it leads -->
+      <a
+          v-if="repository"
+          :href="repository"
+          target="_blank"
+          rel="noopener"
+          class="mt-px flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted/50 hover:text-foreground"
+          :title="`Open the repository on ${onGithub ? 'GitHub' : 'GitLab'}`"
+      >
+        <Github v-if="onGithub" :size="12" />
+        <Gitlab v-else :size="12" />
+        {{ onGithub ? 'GitHub' : 'GitLab' }}
+        <ArrowUpRight :size="10" />
+      </a>
+    </div>
     <Spinner v-if="store.isRefreshing[store.selectedDocUrl]" />
     <button
         v-for="group in groups"

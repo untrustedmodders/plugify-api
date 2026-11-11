@@ -200,11 +200,6 @@ export const useDocStore = defineStore('docStore', {
             this.ready = true;
         },
 
-        /** Downloads every manifest on the list again, bypassing the cache. */
-        refreshAll() {
-            for (const url of this.docUrls) this.refreshDoc(url);
-        },
-
         async loadDoc(url: string) {
             if (url.length == 0)
                 return;

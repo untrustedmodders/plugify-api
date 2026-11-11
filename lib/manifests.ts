@@ -84,6 +84,27 @@ export function findListedManifest(url: string): DefaultManifest | undefined {
     return listedManifests.find(manifest => sameManifestUrl(manifest.url, url));
 }
 
+/**
+ * The repository page of a listed (official or community) manifest, read from its link:
+ * raw.githubusercontent.com/<owner>/<repo>/... on GitHub, .../-/raw/... on GitLab. A
+ * manifest hosted anywhere else has none.
+ */
+export function manifestRepository(url: string): string | undefined {
+    if (!findDefaultManifest(url)) return undefined;
+    try {
+        const u = new URL(url);
+        if (u.hostname === 'raw.githubusercontent.com') {
+            const [owner, repo] = u.pathname.split('/').filter(Boolean);
+            return owner && repo ? `https://github.com/${owner}/${repo}` : undefined;
+        }
+        const raw = u.pathname.indexOf('/-/raw/');
+        if (raw > 0) return `${u.origin}${u.pathname.slice(0, raw)}`;
+    } catch {
+        // not a URL: no repository
+    }
+    return undefined;
+}
+
 export function findManifestBySlug(slug: string): DefaultManifest | undefined {
     return slug ? listedManifests.find(manifest => manifest.slug === slug) : undefined;
 }

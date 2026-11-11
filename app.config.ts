@@ -20,7 +20,7 @@ export default defineAppConfig({
         light: '/plg-logo-text.svg',
         dark: '/plg-logo-text-white.svg',
       },
-      // Same menu as plugify.net, where this site is "Hub"
+      // Same menu as plugify.net, minus its "Hub" entry, which is this site
       nav: [{
         title: 'Docs',
         to: 'https://plugify.net/',
@@ -32,10 +32,6 @@ export default defineAppConfig({
       }, {
         title: 'Generator',
         to: 'https://gen.plugify.net/',
-        target: '_self',
-      }, {
-        title: 'Hub',
-        to: '/',
         target: '_self',
       }],
       links: [{

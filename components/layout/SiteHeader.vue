@@ -8,8 +8,6 @@ import SearchButton from '~/components/layout/SearchButton.vue'
 const config = useConfig()
 const menuOpen = ref(false)
 
-// This site is the "Hub" entry of the plugify.net menu
-const isCurrent = (to: string) => to === '/'
 const isExternal = (to: string) => /^https?:\/\//.test(to)
 
 // Close the mobile menu once something in it was picked
@@ -44,8 +42,7 @@ watch(() => route.fullPath, () => { menuOpen.value = false })
                 :key="link.title"
                 :to="link.to"
                 :target="link.target"
-                class="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm"
-                :class="isCurrent(link.to) ? 'bg-muted font-medium text-foreground' : 'text-muted-foreground hover:text-foreground'"
+                class="flex items-center gap-1 rounded-md px-2 py-1.5 text-sm text-muted-foreground hover:text-foreground"
             >
               {{ link.title }}
               <ArrowUpRight v-if="isExternal(link.to)" :size="12" class="text-muted-foreground" />
@@ -69,8 +66,7 @@ watch(() => route.fullPath, () => { menuOpen.value = false })
             :key="link.title"
             :to="link.to"
             :target="link.target"
-            class="flex items-start gap-0.5 rounded-md px-3 py-2 text-sm font-medium transition-colors"
-            :class="isCurrent(link.to) ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'"
+            class="flex items-start gap-0.5 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
         >
           {{ link.title }}
           <ArrowUpRight v-if="isExternal(link.to)" :size="10" class="mt-0.5" />

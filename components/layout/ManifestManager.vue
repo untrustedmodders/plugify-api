@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, Settings2, Pencil, Github, Gitlab, FileUp } from 'lucide-vue-next'
 import { useDocStore, manifestTitle, defaultManifestTitle } from '~/lib/docStore'
-import { communityManifests, defaultManifests, findDefaultManifest, findListedManifest, isLocalDoc, localFileName, manifestRepository, normalizeDocUrl, sameManifestUrl } from '~/lib/manifests'
+import { communityManifests, defaultManifests, findDefaultManifest, findListedManifest, manifestRepository, manifestSource, normalizeDocUrl, sameManifestUrl } from '~/lib/manifests'
 import { computed, nextTick, ref } from 'vue'
 
 const store = useDocStore()
@@ -298,7 +298,7 @@ function getStatusIcon(url: string) {
                 {{ manifestTitle(url) }}
               </div>
               <div class="text-xs text-muted-foreground truncate">
-                {{ isLocalDoc(url) ? `Local file: ${localFileName(url)}` : url }}
+                {{ manifestSource(url) }}
               </div>
             </div>
 

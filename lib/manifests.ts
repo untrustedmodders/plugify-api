@@ -57,6 +57,11 @@ export function localFileName(url: string) {
     return url.slice(LOCAL_PREFIX.length);
 }
 
+/** Where a manifest comes from, shown under its name: its link, or the file it was opened from. */
+export function manifestSource(url: string) {
+    return isLocalDoc(url) ? `Local file: ${localFileName(url)}` : url;
+}
+
 // Turns a user-supplied link into the raw manifest URL, or null if it is not http(s)
 export function normalizeDocUrl(url: string): string | null {
     try {

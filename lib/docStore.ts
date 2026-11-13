@@ -13,7 +13,7 @@ import type {
     ClassType,
 } from '~/lib/manifest';
 import { definitionOf, resolveManifest } from '~/lib/manifest';
-import { defaultManifests, findDefaultManifest, isLocalDoc, localDocUrl, manifestPath, normalizeDocUrl } from '~/lib/manifests';
+import { defaultManifests, findDefaultManifest, isLocalDoc, localDocUrl, localFileName, manifestPath, normalizeDocUrl } from '~/lib/manifests';
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
@@ -85,8 +85,8 @@ function cleanText(value?: string) {
 }
 
 export function formatName(url: string) {
-    const parts = url.split('/');
-    const filename = parts.pop() || ''; // Ensure it's a string
+    // A manifest from disk is named by its file, without the local: prefix
+    const filename = isLocalDoc(url) ? localFileName(url) : url.split('/').pop() || '';
     return filename.split('.')[0]; // Remove file extension
 }
 

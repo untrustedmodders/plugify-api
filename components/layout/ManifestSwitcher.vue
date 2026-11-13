@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, ChevronDown, Settings2, FileText } from 'lucide-vue-next'
 import { useDocStore, manifestTitle } from '~/lib/docStore'
-import { communityManifests, defaultManifests, findDefaultManifest } from '~/lib/manifests'
+import { communityManifests, defaultManifests, findDefaultManifest, manifestSource } from '~/lib/manifests'
 import { ref } from 'vue'
 import ManifestManager from '~/components/layout/ManifestManager.vue'
 
@@ -107,12 +107,13 @@ const currentManifestName = computed(() => {
                 {{ manifestTitle(url) }}
               </div>
               <div class="text-xs text-muted-foreground truncate">
-                {{ url }}
+                {{ manifestSource(url) }}
               </div>
             </div>
 
-            <!-- Current indicator -->
-            <div v-if="store.selectedDocUrl === url" class="text-xs text-primary">
+            <!-- Current indicator: a badge, so it reads as centred between the name and the link;
+                 solid, as the row under it is tinted green already -->
+            <div v-if="store.selectedDocUrl === url" class="flex-shrink-0 rounded-full bg-primary px-2 py-1 text-[0.6875rem] font-medium leading-none text-primary-foreground">
               Current
             </div>
           </DropdownMenuItem>

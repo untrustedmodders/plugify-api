@@ -1,6 +1,6 @@
 import { useRouter } from '#app';
 import { useDocStore } from '~/lib/docStore';
-import { findDefaultManifest, manifestPath } from '~/lib/manifests';
+import { findDefaultManifest, isLocalDoc, manifestPath } from '~/lib/manifests';
 
 /**
  * Hash navigation that keeps the address bar shareable: a listed manifest is opened at its
@@ -13,10 +13,13 @@ export function useDocNavigation() {
   const router = useRouter();
   const store = useDocStore();
 
-  /** The current query with ?file= set for the given (default: open) manifest. */
+  /**
+   * The current query with ?file= set for the given (default: open) manifest. A manifest
+   * from disk opens for no one else, so it is not named: a reload picks it from the saved state.
+   */
   function queryFor(url = store.selectedDocUrl) {
     const query = { ...router.currentRoute.value.query };
-    if (url && !findDefaultManifest(url)) {
+    if (url && !findDefaultManifest(url) && !isLocalDoc(url)) {
       query.file = url;
     } else {
       delete query.file;

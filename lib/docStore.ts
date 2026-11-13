@@ -13,11 +13,13 @@ import type {
     ClassType,
 } from '~/lib/manifest';
 import { definitionOf, resolveManifest } from '~/lib/manifest';
-import { defaultManifests, findDefaultManifest, manifestPath, normalizeDocUrl } from '~/lib/manifests';
+import { defaultManifests, findDefaultManifest, isLocalDoc, localDocUrl, manifestPath, normalizeDocUrl } from '~/lib/manifests';
 
 // Add new constants for cache expiration (in milliseconds) and database version
 const CACHE_EXPIRATION_TIME = 24 * 60 * 60 * 1000; // 24 hours for example
-const DB_VERSION = 4; // Increment the version when schema changes (4: cache keeps manifest info)
+const DB_VERSION = 5; // Increment the version when schema changes (4: cache keeps manifest info, 5: local files)
+// The last version that changed what docFiles holds; older caches are dropped
+const CACHE_VERSION = 4;
 
 // Manifests given to first-time users, from manifests.json
 const DEFAULT_MANIFEST_URLS = defaultManifests.map(manifest => manifest.url);
@@ -107,9 +109,11 @@ export function defaultManifestTitle(url: string) {
 /**
  * A link to a place in a manifest that opens for anyone: a listed manifest has its own
  * address (/s2sdk), any other one is carried along as ?file= so it gets added on open.
+ * A manifest from disk cannot be opened by others, so its link keeps just the path.
  */
 export function docLink(origin: string, url: string, path: string) {
-    const base = findDefaultManifest(url) ? manifestPath(url) : `/?file=${encodeURIComponent(url)}`;
+    const base = findDefaultManifest(url) ? manifestPath(url)
+        : isLocalDoc(url) ? '/' : `/?file=${encodeURIComponent(url)}`;
     return `${origin}${base}#/${path}`;
 }
 
@@ -164,12 +168,18 @@ export const useDocStore = defineStore('docStore', {
                         console.log("First time database creation");
                     }
 
-                    if (oldVersion < DB_VERSION) {
+                    if (oldVersion < CACHE_VERSION) {
                         if (db.objectStoreNames.contains('docFiles')) {
                             console.log(`Upgrading database from version ${oldVersion} to ${newVersion}`);
                             db.deleteObjectStore('docFiles');
                         }
                         db.createObjectStore('docFiles');
+                    }
+
+                    // Manifests opened from disk: their text, and where supported the file
+                    // handle to read it again. Not a cache, so never dropped on upgrade
+                    if (!db.objectStoreNames.contains('localFiles')) {
+                        db.createObjectStore('localFiles');
                     }
                 },
             });
@@ -226,13 +236,19 @@ export const useDocStore = defineStore('docStore', {
 
         async refreshDocInBackground(url: string) {
             try {
-                const response: Response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                let json: any;
+                if (isLocalDoc(url)) {
+                    json = JSON.parse(await this.readLocalFile(url));
+                } else {
+                    const response: Response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status} ${response.statusText}`);
+                    }
+                    json = await response.json();
                 }
                 // Link by-name prototype/enum references before anything reads the
                 // manifest, so the rest of this store only ever sees definitions.
-                const manifest: ManifestType = resolveManifest(await response.json());
+                const manifest: ManifestType = resolveManifest(json);
 
                 let data: Document = {};
 
@@ -329,6 +345,49 @@ export const useDocStore = defineStore('docStore', {
             } catch (error) {
                 console.error('Error deleting cached document:', error);
             }
+        },
+
+        /**
+         * Adds a manifest from the user's disk, or replaces the one with the same file name.
+         * handle, given by the File System Access API, lets Reload read the file again.
+         * Throws when the file is not JSON. Resolves to the manifest's URL.
+         */
+        async addLocalFile(file: File, handle?: FileSystemFileHandle, name?: string) {
+            const text = await file.text();
+            JSON.parse(text);
+            const url = localDocUrl(file.name);
+            await this.db.put('localFiles', { text, handle }, url);
+            if (!this.addDocUrl(url, name) && name?.trim()) {
+                this.renameDoc(url, name);
+            }
+            this.refreshDoc(url);
+            return url;
+        },
+
+        /** The text of a manifest from disk: read from the file again when the browser allows it. */
+        async readLocalFile(url: string): Promise<string> {
+            const record = await this.db.get('localFiles', url);
+            if (!record) {
+                throw new Error('The file is no longer stored, open it again');
+            }
+            const handle: any = record.handle;
+            if (handle) {
+                try {
+                    // Asking needs a click: on a background reload this throws and the stored text is used
+                    let permission = await handle.queryPermission({ mode: 'read' });
+                    if (permission !== 'granted') {
+                        permission = await handle.requestPermission({ mode: 'read' });
+                    }
+                    if (permission === 'granted') {
+                        const text = await (await handle.getFile()).text();
+                        await this.db.put('localFiles', { text, handle }, url);
+                        return text;
+                    }
+                } catch (error) {
+                    console.debug('Using the stored copy of', url, error);
+                }
+            }
+            return record.text;
         },
 
         async getCachedDoc(url: string) {
@@ -437,7 +496,7 @@ export const useDocStore = defineStore('docStore', {
 
         /** Adds a manifest; name, when given, is shown instead of the manifest's own. */
         addDocUrl(url: string, name?: string) {
-            const href = normalizeDocUrl(url);
+            const href = isLocalDoc(url) ? url : normalizeDocUrl(url);
             if (href && !this.docUrls.includes(href)) {
                 this.docUrls.push(href);
                 localStorage.setItem('docUrls', JSON.stringify(this.docUrls));
@@ -468,6 +527,9 @@ export const useDocStore = defineStore('docStore', {
             delete this.isRefreshing[url];
             delete this.isFetched[url];
             this.deleteCachedDoc(url);
+            if (isLocalDoc(url)) {
+                this.db.delete('localFiles', url);
+            }
             this.renameDoc(url);
 
             const current = this.selectedDocUrl === url;

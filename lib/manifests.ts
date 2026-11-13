@@ -41,6 +41,22 @@ function formatUrl(url: string) {
     return url;
 }
 
+// Manifests opened from the user's disk are listed as "local:<file name>"
+const LOCAL_PREFIX = 'local:';
+
+export function isLocalDoc(url: string) {
+    return url.startsWith(LOCAL_PREFIX);
+}
+
+export function localDocUrl(fileName: string) {
+    return LOCAL_PREFIX + fileName;
+}
+
+/** The file name of a manifest opened from disk. */
+export function localFileName(url: string) {
+    return url.slice(LOCAL_PREFIX.length);
+}
+
 // Turns a user-supplied link into the raw manifest URL, or null if it is not http(s)
 export function normalizeDocUrl(url: string): string | null {
     try {

@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, Settings2, Pencil, Github, Gitlab } from 'lucide-vue-next'
+import { RefreshCcw, CircleAlert, CircleCheck, CircleHelp, Plus, X, Settings2, Pencil, Github, Gitlab, FileUp } from 'lucide-vue-next'
 import { useDocStore, manifestTitle, defaultManifestTitle } from '~/lib/docStore'
-import { communityManifests, defaultManifests, findDefaultManifest, findListedManifest, manifestRepository, normalizeDocUrl, sameManifestUrl } from '~/lib/manifests'
+import { communityManifests, defaultManifests, findDefaultManifest, findListedManifest, isLocalDoc, localFileName, manifestRepository, normalizeDocUrl, sameManifestUrl } from '~/lib/manifests'
 import { computed, nextTick, ref } from 'vue'
 
 const store = useDocStore()
@@ -46,6 +46,44 @@ function handleAddManifest() {
   store.loadDoc(url)
   handleResetManifest()
   showRow(url)
+}
+
+// Manifests from disk. Where the browser can (Chrome, Edge) the file is picked with a handle,
+// so Reload reads it again; elsewhere its text is kept and opening it again replaces it
+const fileInput = ref<HTMLInputElement | null>(null)
+const manifestFileTypes = '.pplugin,.pmodule,.json,.in'
+
+async function handleOpenFile() {
+  const picker = (window as any).showOpenFilePicker
+  if (!picker) {
+    fileInput.value?.click()
+    return
+  }
+  try {
+    const [handle] = await picker({
+      types: [{ description: 'Plugify manifest', accept: { 'application/json': manifestFileTypes.split(',') } }],
+    })
+    await addFile(await handle.getFile(), handle)
+  } catch (error: any) {
+    if (error?.name !== 'AbortError') addError.value = `Could not open the file: ${error?.message ?? error}`
+  }
+}
+
+async function handleFileInput(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (file) await addFile(file)
+}
+
+async function addFile(file: File, handle?: FileSystemFileHandle) {
+  try {
+    const url = await store.addLocalFile(file, handle, newManifestName.value)
+    handleResetManifest()
+    showRow(url)
+  } catch (error: any) {
+    addError.value = `${file.name} is not a JSON manifest: ${error?.message ?? error}`
+  }
 }
 
 // The list shows five rows; bring a new or existing row into view
@@ -179,6 +217,17 @@ function getStatusIcon(url: string) {
             <span>{{ addError }}</span>
           </div>
           <div class="flex gap-2 justify-end">
+            <input ref="fileInput" type="file" :accept="manifestFileTypes" class="hidden" @change="handleFileInput" />
+            <Button
+              @click="handleOpenFile"
+              size="sm"
+              variant="outline"
+              class="mr-auto gap-2"
+              title="Add a manifest from your disk"
+            >
+              <FileUp class="h-4 w-4" />
+              Open file
+            </Button>
             <Button 
               @click="handleResetManifest"
               size="sm"
@@ -249,7 +298,7 @@ function getStatusIcon(url: string) {
                 {{ manifestTitle(url) }}
               </div>
               <div class="text-xs text-muted-foreground truncate">
-                {{ url }}
+                {{ isLocalDoc(url) ? `Local file: ${localFileName(url)}` : url }}
               </div>
             </div>
 

@@ -79,7 +79,7 @@ const currentManifestName = computed(() => {
             :key="url"
             @click="handleSelectManifest(url)"
             class="flex items-center gap-3 p-2"
-            :class="[store.selectedDocUrl === url && 'bg-accent']"
+            :class="[store.selectedDocUrl === url && 'bg-primary/10']"
           >
             <!-- Status indicator -->
             <div class="flex-shrink-0">

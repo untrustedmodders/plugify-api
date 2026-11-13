@@ -791,7 +791,7 @@ html.dark {
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
 
-    --accent: 240 4.8% 95.9%;
+    --accent: 240 5% 90%; /* hover and focus: darker than both the white menus and the grey cards */
     --accent-foreground: 240 5.9% 10%;
 
     --destructive: 0 84.2% 60.2%;
@@ -824,7 +824,7 @@ html.dark {
     --secondary: 240 8% 9%;
     --secondary-foreground: 0 0% 98%;
 
-    --accent: 240 3.7% 15.9%;
+    --accent: 216 6% 23%; /* hover and focus: lighter than the cards and menus (216 6% 15%) */
     --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;

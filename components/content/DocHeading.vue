@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import CopyButton from "~/components/content/CopyButton.vue";
+import LinkedText from "~/components/content/LinkedText.vue";
 
 // The title block of a method, delegate, enum or class page, styled like plugify.net docs
 defineProps<{
@@ -7,6 +8,9 @@ defineProps<{
   title?: string;
   description?: string;
   link: string;
+  // The manifest and group the description's names are looked up in
+  group?: string;
+  url?: string;
 }>()
 </script>
 
@@ -17,6 +21,6 @@ defineProps<{
       {{ title }}
       <CopyButton :code="link" />
     </h1>
-    <p v-if="description" class="text-lg text-muted-foreground">{{ description }}</p>
+    <p v-if="description" class="text-lg text-muted-foreground"><LinkedText :text="description" :group="group" :self="title" :url="url" /></p>
   </div>
 </template>

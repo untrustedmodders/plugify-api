@@ -122,6 +122,27 @@ export function manifestDescription(url: string) {
     return findDefaultManifest(url)?.description || useDocStore().docInfo[url]?.description;
 }
 
+// Name -> groups that document it, built once per loaded manifest (see itemGroups)
+const itemIndexes = new WeakMap<Document, Map<string, string[]>>();
+
+/** The groups of a manifest that document each method, delegate, enum and class name. */
+export function itemGroups(doc: Document) {
+    let index = itemIndexes.get(doc);
+    if (!index) {
+        index = new Map();
+        for (const [group, content] of Object.entries(doc)) {
+            for (const items of [content.methods, content.delegates, content.enumerators, content.classes]) {
+                for (const name of Object.keys(items)) {
+                    const groups = index.get(name);
+                    if (groups) groups.push(group); else index.set(name, [group]);
+                }
+            }
+        }
+        itemIndexes.set(doc, index);
+    }
+    return index;
+}
+
 export const useDocStore = defineStore('docStore', {
     state: () => ({
         db: null as any,

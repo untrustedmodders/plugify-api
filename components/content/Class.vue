@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import type { ClassType } from '~/lib/manifest';
 import DocHeading from "~/components/content/DocHeading.vue";
+import LinkedText from "~/components/content/LinkedText.vue";
 import { useDocStore, docLink } from '~/lib/docStore';
 
 const props = defineProps<{
@@ -35,6 +36,8 @@ const groupMethods = computed(() => {
         kind="Class"
         :title="klass.name"
         :description="klass.description"
+        :group="group"
+        :url="url"
         :link="docLink(root, url, `${group}/${klass.name}`)"
     />
       <!-- Handle Type Information -->
@@ -71,7 +74,7 @@ const groupMethods = computed(() => {
                   </a>
                 </TableCell>
                 <TableCell class="align-top text-muted-foreground break-words">
-                  {{ groupMethods[constructor]?.description }}
+                  <LinkedText :text="groupMethods[constructor]?.description" :group="group" :self="constructor" :url="url" />
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -98,7 +101,7 @@ const groupMethods = computed(() => {
                   </a>
                 </TableCell>
                 <TableCell class="align-top text-muted-foreground break-words">
-                  {{ groupMethods[klass.destructor]?.description }}
+                  <LinkedText :text="groupMethods[klass.destructor]?.description" :group="group" :self="klass.destructor" :url="url" />
                 </TableCell>
               </TableRow>
             </TableBody>
@@ -135,10 +138,10 @@ const groupMethods = computed(() => {
                 </TableCell>
                 <TableCell class="align-top text-muted-foreground break-words">
                   <div v-if="binding.description">
-                    {{ binding.description }}
+                    <LinkedText :text="binding.description" :group="group" :self="binding.method" :url="url" />
                   </div>
                   <div v-else-if="binding.method && groupMethods[binding.method]">
-                    {{ groupMethods[binding.method].description }}
+                    <LinkedText :text="groupMethods[binding.method].description" :group="group" :self="binding.method" :url="url" />
                   </div>
                   <div v-else class="italic">
                     No description available

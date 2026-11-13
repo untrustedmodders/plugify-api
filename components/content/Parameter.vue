@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type {ParamType} from '~/lib/manifest';
 import Signature from "~/components/content/Signature.vue";
+import LinkedText from "~/components/content/LinkedText.vue";
 const props = defineProps<{
   group: string | undefined;
   param: ParamType | undefined;
@@ -14,6 +15,6 @@ const props = defineProps<{
       <Signature :group="group" :param="param ? { ...param, name: undefined } : undefined" />
       <span v-if="param?.alias?.name" class="text-xs text-muted-foreground">alias {{ param.alias.name }}</span>
     </div>
-    <p v-if="param?.description" class="text-sm text-muted-foreground">{{ param.description }}</p>
+    <p v-if="param?.description" class="text-sm text-muted-foreground"><LinkedText :text="param.description" :group="group" /></p>
   </div>
 </template>

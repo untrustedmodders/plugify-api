@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/table'
 import type { EnumType } from '~/lib/manifest';
 import DocHeading from "~/components/content/DocHeading.vue";
+import LinkedText from "~/components/content/LinkedText.vue";
 
 const props = defineProps<{
   enumerator: EnumType;
@@ -26,6 +27,8 @@ const root = useRequestURL().origin;
         kind="Enum"
         :title="enumerator.name"
         :description="enumerator.description"
+        :group="group"
+        :url="url"
         :link="docLink(root, url, `${group}/${enumerator.name}`)"
     />
     <section v-if="enumerator.values">
@@ -43,7 +46,7 @@ const root = useRequestURL().origin;
             <TableRow v-for="element in enumerator.values" :key="element.name">
               <TableCell class="align-top font-mono font-medium whitespace-nowrap md:whitespace-normal">{{ element.name }}</TableCell>
               <TableCell class="align-top font-mono whitespace-nowrap text-type">{{ element.value }}</TableCell>
-              <TableCell class="align-top break-words text-muted-foreground">{{ element.description }}</TableCell>
+              <TableCell class="align-top break-words text-muted-foreground"><LinkedText :text="element.description" :group="group" :url="url" /></TableCell>
             </TableRow>
           </TableBody>
         </Table>
